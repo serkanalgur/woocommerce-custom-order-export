@@ -1,5 +1,7 @@
 # WooCommerce Custom Order Export
 
+![WordPress](https://img.shields.io/badge/WordPress-21759b?style=for-the-badge&logo=WordPress&logoColor=%23FFFFFF&color=%2321759b) ![WooCommerce](https://img.shields.io/badge/WooCommerce-96588a?style=for-the-badge&logo=Woo&logoColor=%23FFFFFF&color=%2396588a&logoSize=30)
+
 A production-ready WordPress plugin for exporting WooCommerce orders to CSV/XLSX with support for product-level custom codes and metadata.
 
 ## Features
