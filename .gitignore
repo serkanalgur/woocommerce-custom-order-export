@@ -1,0 +1,34 @@
+# Dependencies
+vendor/
+composer.lock
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+tests/_output/
+coverage/
+
+# WordPress
+wp-content/uploads/wexport/*.csv
+wp-content/uploads/wexport/*.xlsx
+wp-cli.local.yml
+
+# OS
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+
+.phpunit
+.phpunit.cache/

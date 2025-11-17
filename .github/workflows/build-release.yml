@@ -1,0 +1,117 @@
+name: Build Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  check-version:
+    name: Check Version Change
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is-new-release: ${{ steps.version.outputs.is-new-release }}
+      release-type: ${{ steps.version.outputs.release-type }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get current version
+        id: version
+        run: |
+          CURRENT_VERSION=$(grep "Version:" woocommerce-custom-order-export.php | head -1 | sed 's/.*Version: \([0-9.]*\).*/\1/')
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          
+          # Get last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          LAST_TAG=${LAST_TAG#v}
+          
+          if [ "$LAST_TAG" != "$CURRENT_VERSION" ]; then
+            # Determine release type
+            IFS='.' read -r CURR_MAJOR CURR_MINOR CURR_PATCH <<< "$CURRENT_VERSION"
+            IFS='.' read -r LAST_MAJOR LAST_MINOR LAST_PATCH <<< "$LAST_TAG"
+            
+            if [ "$CURR_MAJOR" != "$LAST_MAJOR" ]; then
+              echo "release-type=major" >> $GITHUB_OUTPUT
+              echo "is-new-release=true" >> $GITHUB_OUTPUT
+            elif [ "$CURR_MINOR" != "$LAST_MINOR" ]; then
+              echo "release-type=minor" >> $GITHUB_OUTPUT
+              echo "is-new-release=true" >> $GITHUB_OUTPUT
+            else
+              echo "release-type=patch" >> $GITHUB_OUTPUT
+              echo "is-new-release=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "release-type=none" >> $GITHUB_OUTPUT
+            echo "is-new-release=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-release:
+    name: Build Release ZIP
+    needs: check-version
+    if: needs.check-version.outputs.is-new-release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          extensions: zip
+
+      - name: Setup Composer
+        uses: php-actions/composer@v6
+        with:
+          version: 2.5.8
+
+      - name: Install Dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+
+      - name: Create Build Directory
+        run: |
+          mkdir -p build/woocommerce-custom-order-export
+          cp -r . build/woocommerce-custom-order-export/
+          cd build/woocommerce-custom-order-export
+          
+          # Remove unnecessary files and directories
+          rm -rf .git
+          rm -rf .github
+          rm -rf tests
+          rm -rf .gitignore
+          rm -rf .DS_Store
+          rm -rf composer.json
+          rm -rf composer.lock
+          rm -rf phpunit.xml
+          rm -rf README.md
+          rm -rf CHANGELOG.md
+
+      - name: Create ZIP File
+        run: |
+          cd build
+          zip -r woocommerce-custom-order-export-${{ needs.check-version.outputs.version }}.zip woocommerce-custom-order-export/
+          ls -lh woocommerce-custom-order-export-${{ needs.check-version.outputs.version }}.zip
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ needs.check-version.outputs.version }}
+          name: Version ${{ needs.check-version.outputs.version }}
+          body: |
+            ## Release Notes
+            
+            **Release Type:** ${{ needs.check-version.outputs.release-type }}
+            
+            This release includes:
+            - Plugin code
+            - Composer dependencies (vendor folder)
+            - All admin and includes directories
+            
+            See [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for detailed changes.
+          artifacts: build/woocommerce-custom-order-export-${{ needs.check-version.outputs.version }}.zip
+          draft: false
+          prerelease: false
