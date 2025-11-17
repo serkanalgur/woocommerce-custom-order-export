@@ -71,7 +71,7 @@ jobs:
       - name: Create Build Directory
         run: |
           mkdir -p build/woocommerce-custom-order-export
-          cp -r . build/woocommerce-custom-order-export/ --exclude=build
+          rsync -r --exclude=build . build/woocommerce-custom-order-export/
           cd build/woocommerce-custom-order-export
           
           # Remove unnecessary files and directories
