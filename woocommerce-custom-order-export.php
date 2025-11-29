@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce Custom Order Export
  * Plugin URI: https://serkanalgur.com.tr/
  * Description: Export WooCommerce orders to CSV/XLSX with product-level custom codes and metadata.
- * Version: 1.6.0
+ * Version: 1.7.0
  * Author: Serkan Algur
  * Author URI: https://serkanalgur.com.tr
  * License: GPL v2 or later
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'WEXPORT_VERSION', '1.6.0' );
+define( 'WEXPORT_VERSION', '1.7.0' );
 define( 'WEXPORT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WEXPORT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WEXPORT_INCLUDES_DIR', WEXPORT_PLUGIN_DIR . 'includes/' );

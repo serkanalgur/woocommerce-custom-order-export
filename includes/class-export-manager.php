@@ -443,13 +443,23 @@ class Export_Manager {
 					continue;
 				}
 
-				// Get full term objects to access meta data
-				// Use parent product ID for variations to get inherited taxonomy terms
-				$terms = wp_get_post_terms(
-					$taxonomy_product_id,
-					$taxonomy,
-					array( 'fields' => 'all' )
-				);
+				// Try to get taxonomy terms assigned explicitly to the variation.
+				// If none are assigned, fallback to parent product to keep previous behavior.
+				$terms = array();
+				if ( $product->is_type( 'variation' ) ) {
+					$terms = wp_get_post_terms(
+						$product->get_id(),
+						$taxonomy,
+						array( 'fields' => 'all' )
+					);
+				}
+				if ( empty( $terms ) ) {
+					$terms = wp_get_post_terms(
+						$taxonomy_product_id,
+						$taxonomy,
+						array( 'fields' => 'all' )
+					);
+				}
 
 				if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
 					$separator = $this->config['multi_term_separator'];
@@ -462,6 +472,14 @@ class Export_Manager {
 					
 					$codes[ $column_name ] = implode( $separator, $term_values );
 				} else {
+					// If still empty and the product is a variation, try attribute value fallback
+					if ( $product->is_type( 'variation' ) ) {
+						$attr_value = $product->get_attribute( $taxonomy );
+						if ( ! empty( $attr_value ) ) {
+							$codes[ $column_name ] = sanitize_text_field( $attr_value );
+							continue;
+						}
+					}
 					$codes[ $column_name ] = '';
 				}
 			}

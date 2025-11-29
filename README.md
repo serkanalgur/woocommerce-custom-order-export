@@ -510,6 +510,14 @@ GPL v2 or later - See LICENSE file
 **Added**
 - Checkbox in admin UI to remove variation details from product names on export and preview. The exporter now uses parent product name for variations if this option is enabled.
 
+**Changed**
+- Taxonomy-based custom code mappings now prefer terms assigned to the variation (if the exported item is a variation) and fall back to the parent product if none are present. This makes per-variation attributes (e.g., `pa_gramaj`) export the correct variation value (like "50g").
+
+### 1.7.0 - 2025-11-29
+
+**Changed**
+- Taxonomy handling extended: Added a final fallback to read attribute strings from `$product->get_attribute($taxonomy)` when no taxonomy terms are found on the variation or parent product. This ensures attribute values stored directly on variations export correctly.
+
 ### 1.5.0 - 2025-11-16
 
 **Fixed**

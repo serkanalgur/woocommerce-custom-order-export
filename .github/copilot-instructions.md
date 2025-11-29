@@ -58,6 +58,10 @@
 - Use existing hooks/filters before modifying export core logic; follow the patterns used in `Export_Manager` & `Admin_Page`.
 - When changing formatting logic, update `Export_Formatter` and verify CSV/XLSX parity (escape logic and BOM).
 - When in doubt about product taxonomy or variation behavior, look up `get_product_custom_codes()` and `get_product_custom_codes_for_preview()` for consistent handling.
+  - Note: The exporter now prefers taxonomy terms assigned to a product variation where available, falling back to the parent product only when necessary. Follow this pattern when adding new taxonomy-based exports.
+  - Implementation tip: Use `wp_get_post_terms( $product->get_id(), $taxonomy )` for variation-level terms first; then fallback to `wp_get_post_terms( $parent_id, $taxonomy )`. As a final fallback, consider `$product->get_attribute( $taxonomy )` for attribute strings (e.g., global `pa_*` attributes stored as serialized values or names).
+
+- New UI option: `remove_variation_from_product_name` — check `admin/admin-page.php` and `Export_Formatter` for usage patterns when adding UI toggles that affect export formatting.
 
 ## Release Workflow
 - When preparing a release or PR that changes functionality, follow these steps:

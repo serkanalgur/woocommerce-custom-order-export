@@ -363,11 +363,22 @@ class Admin_Page {
 							}
 						}
 
-						$terms = wp_get_post_terms(
-							$product_id,
-							'product_cat',
-							array( 'fields' => 'names' )
-						);
+						// For preview: prefer taxonomy terms assigned to the variation if present.
+						$terms = array();
+						if ( $product->is_type( 'variation' ) ) {
+							$terms = wp_get_post_terms(
+								$product->get_id(),
+								'product_cat',
+								array( 'fields' => 'names' )
+							);
+						}
+						if ( empty( $terms ) ) {
+							$terms = wp_get_post_terms(
+								$product_id,
+								'product_cat',
+								array( 'fields' => 'names' )
+							);
+						}
 						$data[ $column ] = ! is_wp_error( $terms ) ? implode( $config['multi_term_separator'], $terms ) : '';
 					} else {
 						$data[ $column ] = '';
@@ -475,13 +486,22 @@ class Admin_Page {
 					continue;
 				}
 
-				// Get full term objects to access meta data
-				// Use parent product ID for variations to get inherited taxonomy terms
-				$terms = wp_get_post_terms(
-					$taxonomy_product_id,
-					$taxonomy,
-					array( 'fields' => 'all' )
-				);
+					// Prefer terms assigned to the variation if present, otherwise fall back to parent product
+					$terms = array();
+					if ( $product->is_type( 'variation' ) ) {
+						$terms = wp_get_post_terms(
+							$product->get_id(),
+							$taxonomy,
+							array( 'fields' => 'all' )
+						);
+					}
+					if ( empty( $terms ) ) {
+						$terms = wp_get_post_terms(
+							$taxonomy_product_id,
+							$taxonomy,
+							array( 'fields' => 'all' )
+						);
+					}
 
 				if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
 					$separator = $config['multi_term_separator'];
@@ -494,6 +514,14 @@ class Admin_Page {
 					
 					$codes[ $column_name ] = implode( $separator, $term_values );
 				} else {
+					// If still empty and the product is a variation, try attribute value fallback
+					if ( $product->is_type( 'variation' ) ) {
+						$attr_value = $product->get_attribute( $taxonomy );
+						if ( ! empty( $attr_value ) ) {
+							$codes[ $column_name ] = sanitize_text_field( $attr_value );
+							continue;
+						}
+					}
 					$codes[ $column_name ] = '';
 				}
 			}

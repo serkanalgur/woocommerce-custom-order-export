@@ -352,6 +352,9 @@ $custom_codes      = get_option( 'wexport_custom_codes', array() );
 				<p class="description">
 					<?php esc_html_e( 'Map product custom fields or taxonomy terms to export columns. Selected terms will be exported as comma-separated values.', 'wexport' ); ?>
 				</p>
+				<p class="description">
+					<small><?php esc_html_e( 'When exporting variations, taxonomy mappings will prefer the variation-specific term value if available, otherwise parent product terms are used.', 'wexport' ); ?></small>
+				</p>
 
 				<table class="wexport-custom-codes-table">
 					<thead>

@@ -1,7 +1,7 @@
 {
   "name": "wexport/wexport",
   "description": "Export WooCommerce orders to CSV/XLSX with product-level custom codes",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
   "authors": [

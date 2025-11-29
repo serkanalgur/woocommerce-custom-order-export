@@ -310,20 +310,31 @@ class Export_Formatter {
 				case 'product_categories':
 					$product = $item->get_product();
 					if ( $product ) {
-						// For variations, get categories from parent product
+						// Prefer taxonomy terms assigned to the variation if present,
+						// otherwise fall back to parent product categories (legacy behavior).
 						$product_id = $product->get_id();
+						$terms = array();
 						if ( $product->is_type( 'variation' ) ) {
-							$parent_id = $product->get_parent_id();
-							if ( $parent_id ) {
-								$product_id = $parent_id;
-							}
+							$terms = wp_get_post_terms(
+								$product->get_id(),
+								'product_cat',
+								array( 'fields' => 'names' )
+							);
 						}
-
-						$terms          = wp_get_post_terms(
-							$product_id,
-							'product_cat',
-							array( 'fields' => 'names' )
-						);
+						if ( empty( $terms ) ) {
+							$parent_id = $product_id;
+							if ( $product->is_type( 'variation' ) ) {
+								$pid = $product->get_parent_id();
+								if ( $pid ) {
+									$parent_id = $pid;
+								}
+							}
+							$terms = wp_get_post_terms(
+								$parent_id,
+								'product_cat',
+								array( 'fields' => 'names' )
+							);
+						}
 						$row[ $column ] = $this->sanitize_field( $terms, 'array' );
 					} else {
 						$row[ $column ] = '';

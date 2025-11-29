@@ -8,7 +8,7 @@ Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 6.4
 Requires Plugins: woocommerce
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,10 +139,21 @@ Not yet, but you can use the programmatic API or hooks to schedule exports via W
 
 == Changelog ==
 
-= 1.6.0 =
+ = 1.6.0 =
 
 == Added ==
 - Checkbox in admin UI to remove variation details from product names on export and preview. When enabled, variations will export parent product names instead of variant names.
+
+== Changed ==
+- Taxonomy handling extended: Added a final fallback to read attribute strings from `$product->get_attribute($taxonomy)` when no taxonomy terms are found on the variation or parent product. This ensures attribute values stored directly on variations export correctly.
+
+= 1.7.0 =
+
+== Changed ==
+- Taxonomy handling extended: Added a final fallback to read attribute strings from `$product->get_attribute($taxonomy)` when no taxonomy terms are found on the variation or parent product. This ensures attribute values stored directly on variations export correctly.
+
+== Changed ==
+- Taxonomy-based custom code mappings now prefer terms assigned to the variation (if the exported item is a variation) and fall back to the parent product if none are present. This makes per-variation attributes (e.g. `pa_gramaj`) export the correct variation value (such as "50g").
 
 = 1.5.0 =
 * **Critical Fix**: Fixed date range filtering not working correctly when both start and end dates were specified
