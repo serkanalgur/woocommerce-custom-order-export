@@ -8,7 +8,7 @@ Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 6.4
 Requires Plugins: woocommerce
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -138,6 +138,11 @@ No limit! The plugin uses streaming output to handle large exports efficiently.
 Not yet, but you can use the programmatic API or hooks to schedule exports via WordPress cron.
 
 == Changelog ==
+
+= 1.6.0 =
+
+== Added ==
+- Checkbox in admin UI to remove variation details from product names on export and preview. When enabled, variations will export parent product names instead of variant names.
 
 = 1.5.0 =
 * **Critical Fix**: Fixed date range filtering not working correctly when both start and end dates were specified

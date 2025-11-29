@@ -197,6 +197,7 @@ class Ajax_Handler {
 			'custom_code_mappings' => $code_mappings,
 			'multi_term_separator' => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( wp_unslash( $_POST['multi_term_separator'] ) ) : '|',
 			'include_headers'      => isset( $_POST['include_headers'] ) ? true : false,
+			'remove_variation_from_product_name' => isset( $_POST['remove_variation_from_product_name'] ) ? true : false,
 			'batch_size'           => 100,
 		);
 	}

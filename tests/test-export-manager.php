@@ -140,6 +140,14 @@ class Test_Export_Manager extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that remove_variation_from_product_name option is passed to formatter
+	 */
+	public function test_remove_variation_option_on_formatter() {
+		$formatter = new \WExport\Export_Formatter( 'csv', array( 'remove_variation_from_product_name' => true ) );
+		$this->assertTrue( $formatter->get_remove_variation_from_product_name() );
+	}
+
+	/**
 	 * Test get available field types
 	 */
 	public function test_get_field_types() {

@@ -3,6 +3,22 @@
 All notable changes to the WooCommerce Order Export Pro plugin will be documented in this file.
 
 ## [1.5.0] - 2025-11-16
+## [1.6.0] - 2025-11-29
+
+### Added
+- **Remove Variation Option**: Admin option and checkbox to remove variation suffix/details from exported product names. This affects preview and export flows and uses the parent product name when exporting variation products.
+
+### Files Modified
+- `admin/admin-page.php` - Checkbox UI for remove variation option
+- `admin/class-admin-page.php` - Reads option for preview and export
+- `includes/class-ajax-handler.php` - AJAX config includes the new option
+- `includes/class-export-manager.php` - Default config includes the new option
+- `includes/class-export-formatter.php` - Implements parent product fallback for product_name when option is enabled
+- `tests/test-export-manager.php` - Unit test for formatter option handling
+
+### Notes
+- The checkbox state is supported in the preview and export flows. The setting defaults to false if not selected.
+
 
 ### Fixed
 - **Date Range Filtering**: Fixed critical bug where date range filters were not working correctly

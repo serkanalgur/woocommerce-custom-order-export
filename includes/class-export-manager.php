@@ -84,6 +84,7 @@ class Export_Manager {
 			'custom_code_mappings' => array(),
 			'multi_term_separator' => '|',
 			'include_headers'      => true,
+			'remove_variation_from_product_name' => false,
 			'batch_size'           => 100,
 		);
 	}

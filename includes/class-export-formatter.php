@@ -13,6 +13,13 @@ namespace WExport;
 class Export_Formatter {
 
 	/**
+	 * Remove variation suffix from product names when exporting.
+	 *
+	 * @var bool
+	 */
+	private $remove_variation_from_product_name = false;
+
+	/**
 	 * Export format (csv or xlsx).
 	 *
 	 * @var string
@@ -51,7 +58,18 @@ class Export_Formatter {
 		$this->delimiter = $options['delimiter'] ?? ',';
 		$this->charset   = $options['charset'] ?? 'UTF-8';
 		$this->use_bom   = $options['use_bom'] ?? true;
+		$this->remove_variation_from_product_name = $options['remove_variation_from_product_name'] ?? false;
 	}
+
+	/**
+	 * Get the remove variation setting.
+	 *
+	 * @return bool
+	 */
+	public function get_remove_variation_from_product_name() {
+		return (bool) $this->remove_variation_from_product_name;
+	}
+
 
 	/**
 	 * Set export format.
@@ -255,7 +273,22 @@ class Export_Formatter {
 					break;
 
 				case 'product_name':
-					$row[ $column ] = $this->sanitize_field( $item->get_name() );
+					$product = $item->get_product();
+					if ( $product ) {
+						if ( $this->remove_variation_from_product_name && $product->is_type( 'variation' ) ) {
+							$parent_id = $product->get_parent_id();
+							if ( $parent_id ) {
+								$parent_product = wc_get_product( $parent_id );
+								$row[ $column ] = $this->sanitize_field( $parent_product ? $parent_product->get_name() : $item->get_name() );
+							} else {
+								$row[ $column ] = $this->sanitize_field( $item->get_name() );
+							}
+						} else {
+							$row[ $column ] = $this->sanitize_field( $item->get_name() );
+						}
+					} else {
+						$row[ $column ] = '';
+					}
 					break;
 
 				case 'quantity':

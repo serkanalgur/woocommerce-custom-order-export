@@ -322,7 +322,22 @@ class Admin_Page {
 					$data[ $column ] = $product ? $product->get_sku() : '';
 					break;
 				case 'product_name':
-					$data[ $column ] = $item->get_name();
+					$product = $item->get_product();
+					if ( $product ) {
+						if ( ! empty( $config['remove_variation_from_product_name'] ) && $product->is_type( 'variation' ) ) {
+							$parent_id = $product->get_parent_id();
+							if ( $parent_id ) {
+								$parent_product = wc_get_product( $parent_id );
+								$data[ $column ] = $parent_product ? $parent_product->get_name() : $item->get_name();
+							} else {
+								$data[ $column ] = $item->get_name();
+							}
+						} else {
+							$data[ $column ] = $item->get_name();
+						}
+					} else {
+						$data[ $column ] = '';
+					}
 					break;
 				case 'quantity':
 					$data[ $column ] = $item->get_quantity();
@@ -558,6 +573,7 @@ class Admin_Page {
 			'custom_code_mappings' => $code_mappings,
 			'multi_term_separator' => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( $_POST['multi_term_separator'] ) : '|',
 			'include_headers'      => isset( $_POST['include_headers'] ) ? true : false,
+			'remove_variation_from_product_name' => isset( $_POST['remove_variation_from_product_name'] ) ? true : false,
 		);
 	}
 
@@ -718,6 +734,7 @@ class Admin_Page {
 			'include_headers' => get_option( 'wexport_include_headers', true ),
 			'column_mappings' => get_option( 'wexport_column_mappings', array() ),
 			'custom_codes'    => get_option( 'wexport_custom_codes', array() ),
+			'remove_variation_from_product_name' => get_option( 'wexport_remove_variation_from_product_name', false ),
 		);
 	}
 

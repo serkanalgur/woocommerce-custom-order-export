@@ -505,6 +505,11 @@ GPL v2 or later - See LICENSE file
 
 ## Changelog
 
+### 1.6.0 - 2025-11-29
+
+**Added**
+- Checkbox in admin UI to remove variation details from product names on export and preview. The exporter now uses parent product name for variations if this option is enabled.
+
 ### 1.5.0 - 2025-11-16
 
 **Fixed**

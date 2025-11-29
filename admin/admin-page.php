@@ -24,7 +24,9 @@ $form_data = array(
 	'multi_term_separator'   => ', ',
 	'include_headers'        => 1,
 	'columns'                => array(),
-	'custom_code_mappings'   => array(),
+		'custom_code_mappings'   => array(),
+		// Whether to remove variation details from product names in export.
+		'remove_variation_from_product_name' => false,
 );
 
 // Verify nonce and populate form data from POST if available.
@@ -71,6 +73,10 @@ if ( isset( $_POST['wexport_nonce'] ) ) {
 					'source_name'   => isset( $mapping['source_name'] ) ? sanitize_text_field( $mapping['source_name'] ) : '',
 				);
 			}
+		}
+
+		if ( isset( $_POST['remove_variation_from_product_name'] ) ) {
+			$form_data['remove_variation_from_product_name'] = 1;
 		}
 	}
 }
@@ -139,6 +145,20 @@ $custom_codes      = get_option( 'wexport_custom_codes', array() );
 
 				<table class="form-table">
 					<tr>
+						<th scope="row"></th>
+						<td>
+							<label>
+								<input
+									type="checkbox"
+									name="remove_variation_from_product_name"
+									value="1"
+									<?php checked( (bool) $form_data['remove_variation_from_product_name'], true ); ?>
+								/>
+								<?php esc_html_e( 'Remove variation details from product names', 'wexport' ); ?>
+							</label>
+						</td>
+					</tr>
+
 						<th scope="row">
 							<label for="date_from"><?php esc_html_e( 'Date From', 'wexport' ); ?></label>
 						</th>
