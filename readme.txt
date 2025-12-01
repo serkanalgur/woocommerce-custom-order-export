@@ -8,7 +8,7 @@ Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 6.4
 Requires Plugins: woocommerce
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -138,6 +138,11 @@ No limit! The plugin uses streaming output to handle large exports efficiently.
 Not yet, but you can use the programmatic API or hooks to schedule exports via WordPress cron.
 
 == Changelog ==
+
+= 1.7.1 =
+
+== Fixed ==
+- **Template System**: `remove_variation_from_product_name` checkbox value is now correctly saved in template config and loaded when templates are restored. Previously, this setting was only saved globally but not included in individual template configurations.
 
 = 1.7.0 =
 

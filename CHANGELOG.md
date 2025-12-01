@@ -2,6 +2,15 @@
 
 All notable changes to the WooCommerce Order Export Pro plugin will be documented in this file.
 
+## [1.7.1] - 2025-12-01
+
+### Fixed
+- **Template System**: `remove_variation_from_product_name` checkbox value is now correctly saved in template config and loaded when templates are restored. Previously, this setting was only saved globally but not included in individual template configurations.
+
+### Files Modified
+- `includes/class-template-ajax-handler.php` - Template config now includes `remove_variation_from_product_name`
+- `admin/js/template-manager.js` - Form data collection and template loading now handles `remove_variation_from_product_name`
+
 ## [1.7.0] - 2025-11-29
 
 ### Fixed

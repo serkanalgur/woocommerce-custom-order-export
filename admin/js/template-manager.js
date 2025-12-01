@@ -152,6 +152,7 @@
 			ajaxFormData.append('export_mode', formData.export_mode);
 			ajaxFormData.append('multi_term_separator', formData.multi_term_separator);
 			ajaxFormData.append('include_headers', formData.include_headers);
+			ajaxFormData.append('remove_variation_from_product_name', formData.remove_variation_from_product_name);
 
 			// Add arrays
 			formData.order_status.forEach((status) => {
@@ -477,6 +478,7 @@
 				export_mode: $('#export_mode').val(),
 				multi_term_separator: $('#multi_term_separator').val(),
 				include_headers: $('input[name="include_headers"]').is(':checked') ? 1 : 0,
+				remove_variation_from_product_name: $('input[name="remove_variation_from_product_name"]').is(':checked') ? 1 : 0,
 				columns: [],
 				custom_codes: []
 			};
@@ -549,6 +551,13 @@
 				$('input[name="include_headers"]').prop('checked', true);
 			} else {
 				$('input[name="include_headers"]').prop('checked', false);
+			}
+
+			// Set remove variation from product name
+			if (config.remove_variation_from_product_name) {
+				$('input[name="remove_variation_from_product_name"]').prop('checked', true);
+			} else {
+				$('input[name="remove_variation_from_product_name"]').prop('checked', false);
 			}
 
 			// Set columns
