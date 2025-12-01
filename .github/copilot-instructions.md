@@ -58,8 +58,11 @@
 - Use existing hooks/filters before modifying export core logic; follow the patterns used in `Export_Manager` & `Admin_Page`.
 - When changing formatting logic, update `Export_Formatter` and verify CSV/XLSX parity (escape logic and BOM).
 - When in doubt about product taxonomy or variation behavior, look up `get_product_custom_codes()` and `get_product_custom_codes_for_preview()` for consistent handling.
-  - Note: The exporter now prefers taxonomy terms assigned to a product variation where available, falling back to the parent product only when necessary. Follow this pattern when adding new taxonomy-based exports.
-  - Implementation tip: Use `wp_get_post_terms( $product->get_id(), $taxonomy )` for variation-level terms first; then fallback to `wp_get_post_terms( $parent_id, $taxonomy )`. As a final fallback, consider `$product->get_attribute( $taxonomy )` for attribute strings (e.g., global `pa_*` attributes stored as serialized values or names).
+  - **Critical Pattern**: For variation products with taxonomy/attribute columns, ALWAYS check `$product->get_attribute( $taxonomy )` FIRST to get the variation-specific value (e.g., "50g" for pa_gramaj). Only fall back to `wp_get_post_terms()` if get_attribute() returns empty.
+  - Rationale: WooCommerce variation attributes are stored as variation metadata, not as taxonomy term assignments. Using get_attribute() ensures you get the specific selected value for that variation (e.g., "50g") instead of all available terms from the parent product (e.g., "50g|100g|150g").
+  - Implementation order: 1) `get_attribute()` for variations, 2) `wp_get_post_terms( $product_id )` for direct terms, 3) `wp_get_post_terms( $parent_id )` for parent fallback.
+  - Note: The exporter now prefers variation-specific attribute values where available, falling back to taxonomy terms only when attributes are empty.
+  - Legacy note: Previous implementation had attribute fallback as the last resort; now it's the first check for variations to ensure correct single-value export.
 
 - New UI option: `remove_variation_from_product_name` — check `admin/admin-page.php` and `Export_Formatter` for usage patterns when adding UI toggles that affect export formatting.
 
@@ -71,6 +74,7 @@
   4. Update `readme.txt` `Stable tag:` and add a short changelog entry under the changelog sections.
   5. Run `composer test`, `composer phpcs`, and `composer phpcbf` if needed.
   6. Ensure any new admin options are included in `set_default_options()` and added to `admin/admin-page.php` and appropriate config flows.
+    6a. Persist user-facing admin toggles using `update_option()` in the AJAX and non-AJAX request handlers (see `Ajax_Handler::build_config_from_ajax()` and `Admin_Page::persist_export_settings()`).
   7. Add or update unit tests in `tests/` to cover the change.
   8. Commit, push, and open a PR with a detailed description pointing to the changelog and tests.
 

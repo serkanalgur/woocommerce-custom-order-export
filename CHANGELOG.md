@@ -2,19 +2,17 @@
 
 All notable changes to the WooCommerce Order Export Pro plugin will be documented in this file.
 
-## [1.5.0] - 2025-11-16
-## [1.6.0] - 2025-11-29
-
-### Added
-- **Remove Variation Option**: Admin option and checkbox to remove variation suffix/details from exported product names. This affects preview and export flows and uses the parent product name when exporting variation products.
-
-### Changed
-- Taxonomy term extraction: When resolving taxonomy-based custom code mappings for products, the exporter now prefers taxonomy terms assigned directly to a variation (if the item is a variation). If no variation-level terms are found it will fallback to the parent product's terms. This improves per-variation attribute export correctness (e.g., `pa_gramaj` shows only the selected value like "50g" for the variation).
-
 ## [1.7.0] - 2025-11-29
 
+### Fixed
+- **Critical**: Taxonomy custom columns now correctly show only the variation-specific attribute value for variation products, instead of showing all taxonomy terms from the parent product. When exporting a variation with a selected attribute (e.g., "50g" for `pa_gramaj`), only that specific value is now exported, not all available values.
+- Product variation taxonomy extraction now prioritizes `get_attribute()` to retrieve the variation-specific value before falling back to `wp_get_post_terms()`.
+- Preview and export now have consistent behavior for variation taxonomy values.
+- Persist `remove_variation_from_product_name` admin setting: Store the checkbox state persistently using `update_option` from both AJAX and non-AJAX flows (preview and export), so the checkbox is remembered for subsequent sessions.
+
 ### Changed
-- Taxonomy handling: Extended variation-first extraction to include attribute fallback (`product->get_attribute()`), ensuring that attributes stored directly on variations (not as taxonomy terms) export the correct string values.
+- Taxonomy handling: Reordered variation attribute extraction logic to check `product->get_attribute()` FIRST for variations, ensuring only the selected attribute value is returned, then falling back to taxonomy term queries only if needed.
+- Simplified taxonomy extraction logic by removing redundant attribute fallback from the else block.
 
 
 ### Files Modified
@@ -28,6 +26,16 @@ All notable changes to the WooCommerce Order Export Pro plugin will be documente
 ### Notes
 - The checkbox state is supported in the preview and export flows. The setting defaults to false if not selected.
 
+## [1.6.0] - 2025-11-29
+
+### Added
+- **Remove Variation Option**: Admin option and checkbox to remove variation suffix/details from exported product names. This affects preview and export flows and uses the parent product name when exporting variation products.
+
+### Changed
+- Taxonomy term extraction: When resolving taxonomy-based custom code mappings for products, the exporter now prefers taxonomy terms assigned directly to a variation (if the item is a variation). If no variation-level terms are found it will fallback to the parent product's terms. This improves per-variation attribute export correctness (e.g., `pa_gramaj` shows only the selected value like "50g" for the variation).
+
+
+## [1.5.0] - 2025-11-16
 
 ### Fixed
 - **Date Range Filtering**: Fixed critical bug where date range filters were not working correctly

@@ -200,6 +200,10 @@ class Ajax_Handler {
 			'remove_variation_from_product_name' => isset( $_POST['remove_variation_from_product_name'] ) ? true : false,
 			'batch_size'           => 100,
 		);
+		// Persist setting for AJAX flows
+		if ( isset( $config['remove_variation_from_product_name'] ) ) {
+			update_option( 'wexport_remove_variation_from_product_name', (bool) $config['remove_variation_from_product_name'] );
+		}
 	}
 
 	/**

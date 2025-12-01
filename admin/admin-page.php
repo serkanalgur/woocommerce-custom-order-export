@@ -14,7 +14,7 @@ use WExport\Admin\Admin_Page;
 $default_date_from = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
 $default_date_to   = gmdate( 'Y-m-d' );
 
-$form_data = array(
+	$form_data = array(
 	'date_from'              => $default_date_from,
 	'date_to'                => $default_date_to,
 	'order_status'           => array(),
@@ -26,7 +26,7 @@ $form_data = array(
 	'columns'                => array(),
 		'custom_code_mappings'   => array(),
 		// Whether to remove variation details from product names in export.
-		'remove_variation_from_product_name' => false,
+		'remove_variation_from_product_name' => get_option( 'wexport_remove_variation_from_product_name', false ),
 );
 
 // Verify nonce and populate form data from POST if available.
