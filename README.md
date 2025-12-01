@@ -505,6 +505,23 @@ GPL v2 or later - See LICENSE file
 
 ## Changelog
 
+### 1.7.1 - 2025-12-01
+
+**Fixed**
+- **Template System**: `remove_variation_from_product_name` checkbox value is now correctly saved in template config and loaded when templates are restored. Previously, this setting was only saved globally but not included in individual template configurations.
+
+### 1.7.0 - 2025-11-29
+
+**Fixed**
+- **Critical**: Taxonomy custom columns now correctly show only the variation-specific attribute value for variation products, instead of showing all taxonomy terms from the parent product. When exporting a variation with a selected attribute (e.g., "50g" for `pa_gramaj`), only that specific value is now exported, not all available values.
+- Product variation taxonomy extraction now prioritizes `get_attribute()` to retrieve the variation-specific value before falling back to `wp_get_post_terms()`.
+- Preview and export now have consistent behavior for variation taxonomy values.
+- Persist `remove_variation_from_product_name` admin setting: Store the checkbox state persistently using `update_option` from both AJAX and non-AJAX flows (preview and export), so the checkbox is remembered for subsequent sessions.
+
+**Changed**
+- Taxonomy handling: Reordered variation attribute extraction logic to check `product->get_attribute()` FIRST for variations, ensuring only the selected attribute value is returned, then falling back to taxonomy term queries only if needed.
+- Simplified taxonomy extraction logic by removing redundant attribute fallback from the else block.
+
 ### 1.6.0 - 2025-11-29
 
 **Added**
@@ -512,11 +529,6 @@ GPL v2 or later - See LICENSE file
 
 **Changed**
 - Taxonomy-based custom code mappings now prefer terms assigned to the variation (if the exported item is a variation) and fall back to the parent product if none are present. This makes per-variation attributes (e.g., `pa_gramaj`) export the correct variation value (like "50g").
-
-### 1.7.0 - 2025-11-29
-
-**Changed**
-- Taxonomy handling extended: Added a final fallback to read attribute strings from `$product->get_attribute($taxonomy)` when no taxonomy terms are found on the variation or parent product. This ensures attribute values stored directly on variations export correctly.
 
 ### 1.5.0 - 2025-11-16
 
