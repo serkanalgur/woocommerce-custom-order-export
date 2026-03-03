@@ -269,6 +269,7 @@ class WExport {
 					'templateName'      => __( 'Name', 'wexport' ),
 					'productMeta'       => __( 'Product Meta', 'wexport' ),
 					'taxonomy'          => __( 'Taxonomy', 'wexport' ),
+					'lineItemMeta'      => __( 'Line Item Meta', 'wexport' ),
 					'selectTaxonomy'    => __( '-- Select Taxonomy --', 'wexport' ),
 				),
 			)

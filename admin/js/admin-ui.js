@@ -10,6 +10,7 @@
 	 */
 	$(function() {
 		initCustomCodes();
+		initLineItemMetadata();
 		initFormValidation();
 		initAjaxHandlers();
 		initPreviewModal();
@@ -77,6 +78,27 @@
 	}
 
 	/**
+	 * Initialize line item metadata functionality
+	 */
+	function initLineItemMetadata() {
+		var tableBody = $('#line-item-metadata-tbody');
+
+		// Add custom code row
+		$(document).on('click', '#add-line-item-metadata', function(e) {
+			e.preventDefault();
+			var newRow = getLineItemMetadataRow();
+			tableBody.append(newRow);
+			console.log('New custom code row added');
+		});
+
+		// Remove custom code row
+		$(document).on('click', '.remove-code', function(e) {
+			e.preventDefault();
+			$(this).closest('tr').remove();
+		});
+	}
+
+	/**
 	 * Get taxonomy select HTML options from page data
 	 */
 	function getTaxonomySelectHTML() {
@@ -136,6 +158,46 @@
 				</td>
 				<td>
 					<button type="button" class="button button-small remove-code">
+						Remove
+					</button>
+				</td>
+			</tr>
+		`;
+	}
+
+	/**
+	 * Get HTML for a new line item metadata row
+	 */
+	function getLineItemMetadataRow() {
+		return `
+			<tr class="line-item-metadata-row">
+				<td>
+					<input 
+						type="text" 
+						name="line_item_metadata[][meta_key]" 
+						class="line-item-metadata-meta-key"
+						placeholder="e.g., _metal_type or _product_code"
+						style="display: block;"
+					/>
+				</td>
+				<td>
+					<input 
+						type="text" 
+						name="line_item_metadata[][json_query]" 
+						class="line-item-metadata-json-query"
+						placeholder="e.g. .value"
+					/>
+				</td>
+				<td>
+					<input 
+						type="text" 
+						name="line_item_metadata[][column_name]" 
+						class="line-item-metadata-column-name"
+						placeholder="e.g., product_code"
+					/>
+				</td>
+				<td>
+					<button type="button" class="button button-small remove-line-item-metadata">
 						Remove
 					</button>
 				</td>
@@ -296,7 +358,36 @@
 				console.log('Row ' + rowIndex + ' skipped - incomplete mapping. Column:', columnName, 'Type:', type, 'Source:', source);
 			}
 		});
-		
+
+		// Remove the improperly serialized line_item_metadata and rebuild them
+		// FormData doesn't handle name="line_item_metadata[][field]" correctly
+		formDataObj.delete( 'line_item_metadata' );
+
+		// Rebuild line item metadata in FormData
+		var lineItemMetadataRows = $('.line-item-metadata-row');
+		console.log('Number of line item metadata rows:', lineItemMetadataRows.length);
+
+		var lineItemMetadataIndex = 0;
+		lineItemMetadataRows.each(function(rowIndex) {
+			var row = $(this);
+			var metaKey = row.find('.line-item-metadata-meta-key').val().trim();
+			var jsonQuery = row.find('.line-item-metadata-json-query').val().trim();
+			var columnName = row.find('.line-item-metadata-column-name').val().trim();
+
+			console.log('Row ' + rowIndex + ' values:', { columnName: columnName, metaKey: metaKey, jsonQuery: jsonQuery });
+
+			// Only add to FormData if both name and source are filled
+			if ( columnName && metaKey ) {
+				formDataObj.append( 'line_item_metadata[' + lineItemMetadataIndex + '][meta_key]', metaKey );
+				formDataObj.append( 'line_item_metadata[' + lineItemMetadataIndex + '][json_query]', jsonQuery );
+				formDataObj.append( 'line_item_metadata[' + lineItemMetadataIndex + '][column_name]', columnName );
+				console.log('Row ' + rowIndex + ' added as index ' + lineItemMetadataIndex);
+				lineItemMetadataIndex++;
+			} else {
+				console.log('Row ' + rowIndex + ' skipped - incomplete mapping. Column:', columnName, 'Source:', metaKey);
+			}
+		});
+
 		// Debug: Log what we're sending
 		console.log('FormData contents:');
 		for ( var pair of formDataObj.entries() ) {
