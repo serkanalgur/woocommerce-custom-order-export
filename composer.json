@@ -22,6 +22,7 @@
   },
   "require": {
     "php": ">=7.4",
+    "ext-json": "*",
     "composer/installers": "~1.0",
     "phpoffice/phpspreadsheet": "^1.29"
   },
