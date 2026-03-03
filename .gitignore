@@ -32,3 +32,5 @@ Thumbs.db
 
 .phpunit
 .phpunit.cache/
+
+/wp-content
