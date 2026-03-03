@@ -8,7 +8,7 @@ Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 6.4
 Requires Plugins: woocommerce
-Stable tag: 1.7.1
+Stable tag: 1.8.0
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,7 +22,7 @@ WooCommerce Order Export Pro is a powerful, production-ready plugin that allows 
 
 - **Flexible Export Formats**: CSV (default) and XLSX output
 - **Custom Column Selection**: Choose which order, item, and product fields to include
-- **Product Custom Codes**: Map product meta keys or taxonomy terms to custom columns
+- **Product Custom Codes**: Map product meta keys, taxonomy terms, or line-item meta to custom columns
 - **Export Modes**: Export as one row per line item or one row per order
 - **Advanced Filtering**: Filter orders by date range and status
 - **Performance Optimized**: Stream output for large datasets (3,000+ orders)
@@ -76,7 +76,7 @@ Or manually:
    - Product fields (categories)
 
 4. **Add Custom Code Mappings**
-   - Map product meta keys or taxonomies to export columns
+   - Map product meta keys, taxonomies or line-item meta to export columns
    - Supports multiple terms per product
 
 = Product Custom Codes =
