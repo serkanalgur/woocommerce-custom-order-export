@@ -437,6 +437,76 @@ $custom_codes      = get_option( 'wexport_custom_codes', array() );
 				</button>
 			</div>
 
+			<!-- Line Item Metadata Section -->
+			<div class="wexport-section">
+				<h2><?php esc_html_e( 'Line Item Metadata Mapping', 'wexport' ); ?></h2>
+				<p class="description">
+					<?php esc_html_e( 'Map line item metadata to export columns.', 'wexport' ); ?>
+				</p>
+				<p class="description">
+					<small><?php esc_html_e( 'Line item metadata is saved in the form array{id:int, key:string, value:mixed, display_key:string, display_value:mixed}. `.value` is typically what you will want.', 'wexport' ); ?></small>
+				</p>
+
+				<table class="wexport-line-item-metadata-table">
+					<thead>
+						<tr>
+							<th><?php esc_html_e( 'Meta Key', 'wexport' ); ?></th>
+							<th><?php esc_html_e( 'Json Query', 'wexport' ); ?></th>
+							<th><?php esc_html_e( 'Column Name', 'wexport' ); ?></th>
+							<th><?php esc_html_e( 'Action', 'wexport' ); ?></th>
+						</tr>
+					</thead>
+					<tbody id="line-item-metadata-tbody">
+						<?php if ( ! empty( $line_item_metadata ) ) : ?>
+							<?php foreach ( $line_item_metadata as $code_type ) : ?>
+								<tr class="line-item-metadata-row">
+									<td>
+										<input
+											type="text"
+											name="line_item_metadata[][meta_key]"
+											value="<?php echo esc_attr( $code['meta_key'] ?? '' ); ?>"
+											class="line-item-metadata-meta-key"
+											placeholder="e.g., _metal_type or _product_code"
+											style="display: block;"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											name="line_item_metadata[][json_query]"
+											value="<?php echo esc_attr( $code['json_query'] ?? '' ); ?>"
+											class="line-item-metadata-column-name"
+										/>
+									</td>
+									<td>
+										<input
+												type="text"
+												name="line_item_metadata[][column_name]"
+												value="<?php echo esc_attr( $code['column_name'] ?? '' ); ?>"
+												class="line-item-metadata-column-name"
+										/>
+									</td>
+									<td>
+										<button type="button" class="button button-small remove-code">
+											<?php esc_html_e( 'Remove', 'wexport' ); ?>
+										</button>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						<?php endif; ?>
+					</tbody>
+				</table>
+
+				<button
+					type="button"
+					id="add-line-item-metadata"
+					class="button button-secondary"
+					style="margin-top: 10px;"
+				>
+					<?php esc_html_e( 'Add Line Item Metadata Mapping', 'wexport' ); ?>
+				</button>
+			</div>
+
 			<!-- Action Buttons -->
 			<div class="wexport-actions">
 				<button 

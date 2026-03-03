@@ -402,6 +402,12 @@ class Admin_Page {
 			}
 		}
 
+		// Add line item metadata if mappings exist
+		if ( ! empty( $config['line_item_metadata_mappings'] ) ) {
+			$line_item_metadata = self::get_line_item_metadata_for_preview( $item, $config['line_item_metadata_mappings'], $config );
+			$data               = array_merge( $data, $line_item_metadata );
+		}
+
 		return $data;
 	}
 
@@ -536,6 +542,107 @@ class Admin_Page {
 	}
 
 	/**
+	 * Map order item metadata
+	 *
+	 * @param \WC_Order_Item                                                    $line_item Line item
+	 * @param array<array{meta_key:string,json_query:string,column_name:string> $mappings
+	 * @param array                                                             $config Export configuration.
+	 * @return array Order item metadata columns.
+	 */
+	private static function get_line_item_metadata_for_preview( $line_item, $mappings, $config ) {
+		$csv_meta = array();
+
+		foreach ( $mappings as $mapping ) {
+
+			/** @var \WC_Meta_Data[] $wc_meta_values */
+			$wc_meta_values = $line_item->get_meta( $mapping['meta_key'], false );
+
+			foreach ( $wc_meta_values as $wc_meta_value ) {
+
+				$meta_data = $wc_meta_value->get_data();
+
+				$meta_data_value = is_array( $meta_data['value'] ) ? $meta_data['value'] : json_decode( $meta_data['value'], true );
+
+				if ( empty( $meta_data_value ) ) {
+
+					$column_name = empty( $mapping['column_name'] )
+						? $meta_data['key']
+						: $mapping['column_name'];
+
+					$csv_meta[ $column_name ] = $meta_data['value'];
+					continue;
+				}
+
+				// I.e. if it is a string etc.
+				if ( ! is_array( $meta_data_value ) ) {
+
+					$column_name = empty( $mapping['column_name'] )
+						? $meta_data['key']
+						: $mapping['column_name'];
+
+					$csv_meta[ $column_name ] = $meta_data_value;
+					continue;
+				}
+
+				// Split the string by `.` to an array, remove empty entries.
+				$path_parts = array_values(
+					array_filter(
+						explode( '.', $mapping['json_query'] ),
+						function ( $value ) {
+							return $value !== ''; }
+					)
+				);
+				if ( 'value' === $path_parts[0] && ! isset( $meta_data_value['value'] ) ) {
+					unset( $path_parts[0] );
+				}
+
+				$value_part = $meta_data_value;
+				foreach ( $path_parts as $part ) {
+					$value_part = $value_part[ $part ] ?? null;
+				}
+
+				$column_name = $mapping['column_name'];
+				// If the column name begins with `.`, use it as a json query.
+				if ( 0 === strpos( $column_name, '.' ) ) {
+					$column_name_path_parts = array_values(
+						array_filter(
+							explode( '.', $column_name ),
+							function ( $value ) {
+								return $value !== ''; }
+						)
+					);
+					if ( 'value' === $column_name_path_parts[0] && ! isset( $meta_data_value['value'] ) ) {
+						unset( $column_name_path_parts[0] );
+					}
+					$name_part = $meta_data_value;
+					foreach ( $column_name_path_parts as $column_name_path_part ) {
+						$name_part = $name_part[ $column_name_path_part ] ?? null;
+					}
+					$column_name = $name_part;
+				}
+
+				if ( is_null( $column_name ) ) {
+					$column_name = $mapping['meta_key'] . ' : ' . $mapping['column_name'];
+				}
+
+				if ( ! isset( $csv_meta[ $column_name ] ) ) {
+					$csv_meta[ $column_name ] = is_array( $value_part ) ? json_encode( $value_part ) : $value_part;
+				} else {
+					static $duplicate_column_names = array();
+					if ( ! isset( $duplicate_column_names[ $column_name ] ) ) {
+						$duplicate_column_names[ $column_name ] = 1;
+					} else {
+						++$duplicate_column_names[ $column_name ];
+					}
+					$csv_meta[ $column_name . '.' . $duplicate_column_names[ $column_name ] ] = is_array( $value_part ) ? json_encode( $value_part ) : $value_part;
+				}
+			}
+		}
+
+		return $csv_meta;
+	}
+
+	/**
 	 * Format CSV row.
 	 *
 	 * @param array  $row CSV row data.
@@ -595,17 +702,36 @@ class Admin_Page {
 			}
 		}
 
+		// Build line item metadata mappings.
+		$line_item_metadata_mappings = array();
+		if ( isset( $_POST['line_item_metadata'] ) && is_array( $_POST['line_item_metadata'] ) ) {
+			$line_item_metadata = wp_unslash( (array) $_POST['line_item_metadata'] );
+			foreach ( $line_item_metadata as $mapping ) {
+				if ( is_array( $mapping ) ) {
+					$mapping = array_map( 'sanitize_text_field', $mapping );
+					if ( ! empty( $mapping['column_name'] ) && ! empty( $mapping['meta_key'] ) ) {
+						$line_item_metadata_mappings[] = array(
+							'meta_key'    => $mapping['meta_key'],
+							'json_query'  => $mapping['json_query'] ?? '.value',
+							'column_name' => $mapping['column_name'],
+						);
+					}
+				}
+			}
+		}
+
 		return array(
-			'format'               => isset( $_POST['export_format'] ) ? sanitize_text_field( $_POST['export_format'] ) : 'csv',
-			'delimiter'            => isset( $_POST['delimiter'] ) ? sanitize_text_field( $_POST['delimiter'] ) : ',',
-			'export_mode'          => isset( $_POST['export_mode'] ) ? sanitize_text_field( $_POST['export_mode'] ) : 'line_item',
-			'date_from'            => $date_from,
-			'date_to'              => $date_to,
-			'order_status'         => $statuses,
-			'columns'              => $columns,
-			'custom_code_mappings' => $code_mappings,
-			'multi_term_separator' => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( $_POST['multi_term_separator'] ) : '|',
-			'include_headers'      => isset( $_POST['include_headers'] ) ? true : false,
+			'format'                             => isset( $_POST['export_format'] ) ? sanitize_text_field( $_POST['export_format'] ) : 'csv',
+			'delimiter'                          => isset( $_POST['delimiter'] ) ? sanitize_text_field( $_POST['delimiter'] ) : ',',
+			'export_mode'                        => isset( $_POST['export_mode'] ) ? sanitize_text_field( $_POST['export_mode'] ) : 'line_item',
+			'date_from'                          => $date_from,
+			'date_to'                            => $date_to,
+			'order_status'                       => $statuses,
+			'columns'                            => $columns,
+			'custom_code_mappings'               => $code_mappings,
+			'line_item_metadata_mappings'        => $line_item_metadata_mappings,
+			'multi_term_separator'               => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( $_POST['multi_term_separator'] ) : '|',
+			'include_headers'                    => isset( $_POST['include_headers'] ) ? true : false,
 			'remove_variation_from_product_name' => isset( $_POST['remove_variation_from_product_name'] ) ? true : false,
 		);
 	}
@@ -773,12 +899,13 @@ class Admin_Page {
 	 */
 	private static function get_current_settings() {
 		return array(
-			'export_mode'     => get_option( 'wexport_export_mode', 'line_item' ),
-			'delimiter'       => get_option( 'wexport_delimiter', ',' ),
-			'export_format'   => get_option( 'wexport_export_format', 'csv' ),
-			'include_headers' => get_option( 'wexport_include_headers', true ),
-			'column_mappings' => get_option( 'wexport_column_mappings', array() ),
-			'custom_codes'    => get_option( 'wexport_custom_codes', array() ),
+			'export_mode'                        => get_option( 'wexport_export_mode', 'line_item' ),
+			'delimiter'                          => get_option( 'wexport_delimiter', ',' ),
+			'export_format'                      => get_option( 'wexport_export_format', 'csv' ),
+			'include_headers'                    => get_option( 'wexport_include_headers', true ),
+			'column_mappings'                    => get_option( 'wexport_column_mappings', array() ),
+			'custom_codes'                       => get_option( 'wexport_custom_codes', array() ),
+			'line_item_metadata'                 => get_option( 'wexport_line_item_metadata', array() ),
 			'remove_variation_from_product_name' => get_option( 'wexport_remove_variation_from_product_name', false ),
 		);
 	}
