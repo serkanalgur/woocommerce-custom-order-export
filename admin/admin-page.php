@@ -15,78 +15,78 @@ $default_date_from = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
 $default_date_to   = gmdate( 'Y-m-d' );
 
 	$form_data = array(
-	'date_from'              => $default_date_from,
-	'date_to'                => $default_date_to,
-	'order_status'           => array(),
-	'export_format'          => 'csv',
-	'delimiter'              => ',',
-	'export_mode'            => 'line_item',
-	'multi_term_separator'   => ', ',
-	'include_headers'        => 1,
-	'columns'                => array(),
-		'custom_code_mappings'   => array(),
+		'date_from'                          => $default_date_from,
+		'date_to'                            => $default_date_to,
+		'order_status'                       => array(),
+		'export_format'                      => 'csv',
+		'delimiter'                          => ',',
+		'export_mode'                        => 'line_item',
+		'multi_term_separator'               => ', ',
+		'include_headers'                    => 1,
+		'columns'                            => array(),
+		'custom_code_mappings'               => array(),
 		// Whether to remove variation details from product names in export.
 		'remove_variation_from_product_name' => get_option( 'wexport_remove_variation_from_product_name', false ),
-);
+	);
 
-// Verify nonce and populate form data from POST if available.
-if ( isset( $_POST['wexport_nonce'] ) ) {
-	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wexport_nonce'] ) ), 'wexport_export_nonce' ) ) {
-		wp_die( esc_html__( 'Security check failed', 'wexport' ) );
-	}
+	// Verify nonce and populate form data from POST if available.
+	if ( isset( $_POST['wexport_nonce'] ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wexport_nonce'] ) ), 'wexport_export_nonce' ) ) {
+			wp_die( esc_html__( 'Security check failed', 'wexport' ) );
+		}
 
-	// Safely extract form data.
-	if ( isset( $_POST['date_from'] ) ) {
-		$form_data['date_from'] = sanitize_text_field( wp_unslash( $_POST['date_from'] ) );
-	}
-	if ( isset( $_POST['date_to'] ) ) {
-		$form_data['date_to'] = sanitize_text_field( wp_unslash( $_POST['date_to'] ) );
-	}
-	if ( isset( $_POST['order_status'] ) ) {
-		$form_data['order_status'] = array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['order_status'] ) );
-	}
-	if ( isset( $_POST['export_format'] ) ) {
-		$form_data['export_format'] = sanitize_text_field( wp_unslash( $_POST['export_format'] ) );
-	}
-	if ( isset( $_POST['delimiter'] ) ) {
-		$form_data['delimiter'] = sanitize_text_field( wp_unslash( $_POST['delimiter'] ) );
-	}
-	if ( isset( $_POST['export_mode'] ) ) {
-		$form_data['export_mode'] = sanitize_text_field( wp_unslash( $_POST['export_mode'] ) );
-	}
-	if ( isset( $_POST['multi_term_separator'] ) ) {
-		$form_data['multi_term_separator'] = sanitize_text_field( wp_unslash( $_POST['multi_term_separator'] ) );
-	}
-	if ( isset( $_POST['include_headers'] ) ) {
-		$form_data['include_headers'] = 1;
-	}
-	if ( isset( $_POST['columns'] ) ) {
-		$form_data['columns'] = array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['columns'] ) );
-	}
-	if ( isset( $_POST['custom_code_mappings'] ) ) {
-		$custom_mappings = wp_unslash( (array) $_POST['custom_code_mappings'] );
-		foreach ( $custom_mappings as $mapping ) {
-			if ( is_array( $mapping ) ) {
-				$form_data['custom_code_mappings'][] = array(
-					'column_name'   => isset( $mapping['column_name'] ) ? sanitize_text_field( $mapping['column_name'] ) : '',
-					'source_type'   => isset( $mapping['source_type'] ) ? sanitize_text_field( $mapping['source_type'] ) : '',
-					'source_name'   => isset( $mapping['source_name'] ) ? sanitize_text_field( $mapping['source_name'] ) : '',
-				);
+		// Safely extract form data.
+		if ( isset( $_POST['date_from'] ) ) {
+			$form_data['date_from'] = sanitize_text_field( wp_unslash( $_POST['date_from'] ) );
+		}
+		if ( isset( $_POST['date_to'] ) ) {
+			$form_data['date_to'] = sanitize_text_field( wp_unslash( $_POST['date_to'] ) );
+		}
+		if ( isset( $_POST['order_status'] ) ) {
+			$form_data['order_status'] = array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['order_status'] ) );
+		}
+		if ( isset( $_POST['export_format'] ) ) {
+			$form_data['export_format'] = sanitize_text_field( wp_unslash( $_POST['export_format'] ) );
+		}
+		if ( isset( $_POST['delimiter'] ) ) {
+			$form_data['delimiter'] = sanitize_text_field( wp_unslash( $_POST['delimiter'] ) );
+		}
+		if ( isset( $_POST['export_mode'] ) ) {
+			$form_data['export_mode'] = sanitize_text_field( wp_unslash( $_POST['export_mode'] ) );
+		}
+		if ( isset( $_POST['multi_term_separator'] ) ) {
+			$form_data['multi_term_separator'] = sanitize_text_field( wp_unslash( $_POST['multi_term_separator'] ) );
+		}
+		if ( isset( $_POST['include_headers'] ) ) {
+			$form_data['include_headers'] = 1;
+		}
+		if ( isset( $_POST['columns'] ) ) {
+			$form_data['columns'] = array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['columns'] ) );
+		}
+		if ( isset( $_POST['custom_code_mappings'] ) ) {
+			$custom_mappings = wp_unslash( (array) $_POST['custom_code_mappings'] );
+			foreach ( $custom_mappings as $mapping ) {
+				if ( is_array( $mapping ) ) {
+					$form_data['custom_code_mappings'][] = array(
+						'column_name' => isset( $mapping['column_name'] ) ? sanitize_text_field( $mapping['column_name'] ) : '',
+						'source_type' => isset( $mapping['source_type'] ) ? sanitize_text_field( $mapping['source_type'] ) : '',
+						'source_name' => isset( $mapping['source_name'] ) ? sanitize_text_field( $mapping['source_name'] ) : '',
+					);
+				}
+			}
+
+			if ( isset( $_POST['remove_variation_from_product_name'] ) ) {
+				$form_data['remove_variation_from_product_name'] = 1;
 			}
 		}
-
-		if ( isset( $_POST['remove_variation_from_product_name'] ) ) {
-			$form_data['remove_variation_from_product_name'] = 1;
-		}
 	}
-}
 
-$available_columns = Admin_Page::get_available_columns();
-$order_statuses    = Admin_Page::get_order_statuses();
-$available_taxonomies = Admin_Page::get_available_product_taxonomies();
-$default_columns   = get_option( 'wexport_default_columns', array() );
-$custom_codes      = get_option( 'wexport_custom_codes', array() );
-?>
+	$available_columns    = Admin_Page::get_available_columns();
+	$order_statuses       = Admin_Page::get_order_statuses();
+	$available_taxonomies = Admin_Page::get_available_product_taxonomies();
+	$default_columns      = get_option( 'wexport_default_columns', array() );
+	$custom_codes         = get_option( 'wexport_custom_codes', array() );
+	?>
 
 <div class="wrap">
 	<h1><?php esc_html_e( 'WooCommerce Custom Order Export', 'wexport' ); ?></h1>

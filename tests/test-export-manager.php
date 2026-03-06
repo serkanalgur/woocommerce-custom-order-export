@@ -23,7 +23,7 @@ class Test_Export_Manager extends WP_UnitTestCase {
 	 */
 	public function test_default_config() {
 		$manager = new \WExport\Export_Manager();
-		$config = $manager->get_config();
+		$config  = $manager->get_config();
 
 		$this->assertEquals( 'csv', $config['format'] );
 		$this->assertEquals( ',', $config['delimiter'] );
@@ -53,7 +53,7 @@ class Test_Export_Manager extends WP_UnitTestCase {
 		);
 
 		$manager = new \WExport\Export_Manager( $custom_config );
-		$config = $manager->get_config();
+		$config  = $manager->get_config();
 
 		$this->assertEquals( 'csv', $config['format'] );
 		$this->assertEquals( ';', $config['delimiter'] );
@@ -67,14 +67,16 @@ class Test_Export_Manager extends WP_UnitTestCase {
 		// This requires WooCommerce orders to be set up in test data
 		// Skipping detailed implementation as it requires WooCommerce fixtures
 
-		$manager = new \WExport\Export_Manager( array(
-			'columns' => array(
-				'order_id',
-				'customer_name',
-				'product_name',
-				'quantity',
-			),
-		) );
+		$manager = new \WExport\Export_Manager(
+			array(
+				'columns' => array(
+					'order_id',
+					'customer_name',
+					'product_name',
+					'quantity',
+				),
+			)
+		);
 
 		// In a real test, we'd create sample orders and verify output
 		$this->assertIsObject( $manager );
@@ -94,7 +96,7 @@ class Test_Export_Manager extends WP_UnitTestCase {
 	public function test_csv_row_format() {
 		$formatter = new \WExport\Export_Formatter( 'csv', array( 'delimiter' => ',' ) );
 
-		$row = array( 'order_id', 'customer', 'amount' );
+		$row    = array( 'order_id', 'customer', 'amount' );
 		$result = $formatter->format_csv_row( $row );
 
 		$this->assertStringContainsString( 'order_id', $result );
@@ -108,7 +110,7 @@ class Test_Export_Manager extends WP_UnitTestCase {
 	public function test_csv_escaping() {
 		$formatter = new \WExport\Export_Formatter( 'csv', array( 'delimiter' => ',' ) );
 
-		$row = array( 'test "quoted"', 'comma, separated', 'normal' );
+		$row    = array( 'test "quoted"', 'comma, separated', 'normal' );
 		$result = $formatter->format_csv_row( $row );
 
 		// Quoted fields should be escaped
@@ -122,7 +124,7 @@ class Test_Export_Manager extends WP_UnitTestCase {
 		$formatter = new \WExport\Export_Formatter( 'csv', array( 'use_bom' => true ) );
 
 		$content = 'test,data';
-		$result = $formatter->add_bom( $content );
+		$result  = $formatter->add_bom( $content );
 
 		// BOM should be prepended
 		$this->assertEquals( "\xEF\xBB\xBF" . $content, $result );

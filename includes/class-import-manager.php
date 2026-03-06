@@ -93,7 +93,7 @@ class Import_Manager {
 					}
 					$data['rows'][] = $row_data;
 				}
-				$row_num++;
+				++$row_num;
 			}
 
 			fclose( $file );
@@ -125,7 +125,7 @@ class Import_Manager {
 
 			// Get headers from first row.
 			for ( $col = 1; $col <= \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnLetterToColumnIndex( $highest_col ); $col++ ) {
-				$cell_value = $sheet->getCellByColumnAndRow( $col, 1 )->getValue();
+				$cell_value        = $sheet->getCellByColumnAndRow( $col, 1 )->getValue();
 				$data['headers'][] = $cell_value ? trim( (string) $cell_value ) : '';
 			}
 
@@ -133,8 +133,8 @@ class Import_Manager {
 			for ( $row = 2; $row <= $highest_row; $row++ ) {
 				$row_data = array();
 				for ( $col = 1; $col <= \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnLetterToColumnIndex( $highest_col ); $col++ ) {
-					$cell_value = $sheet->getCellByColumnAndRow( $col, $row )->getValue();
-					$header     = isset( $data['headers'][ $col - 1 ] ) ? $data['headers'][ $col - 1 ] : '';
+					$cell_value          = $sheet->getCellByColumnAndRow( $col, $row )->getValue();
+					$header              = isset( $data['headers'][ $col - 1 ] ) ? $data['headers'][ $col - 1 ] : '';
 					$row_data[ $header ] = $cell_value ? trim( (string) $cell_value ) : '';
 				}
 				$data['rows'][] = $row_data;

@@ -54,10 +54,10 @@ class Export_Formatter {
 	 * @param array  $options Additional options.
 	 */
 	public function __construct( $format = 'csv', $options = array() ) {
-		$this->format    = sanitize_text_field( $format );
-		$this->delimiter = $options['delimiter'] ?? ',';
-		$this->charset   = $options['charset'] ?? 'UTF-8';
-		$this->use_bom   = $options['use_bom'] ?? true;
+		$this->format                             = sanitize_text_field( $format );
+		$this->delimiter                          = $options['delimiter'] ?? ',';
+		$this->charset                            = $options['charset'] ?? 'UTF-8';
+		$this->use_bom                            = $options['use_bom'] ?? true;
 		$this->remove_variation_from_product_name = $options['remove_variation_from_product_name'] ?? false;
 	}
 
@@ -313,7 +313,7 @@ class Export_Formatter {
 						// Prefer taxonomy terms assigned to the variation if present,
 						// otherwise fall back to parent product categories (legacy behavior).
 						$product_id = $product->get_id();
-						$terms = array();
+						$terms      = array();
 						if ( $product->is_type( 'variation' ) ) {
 							$terms = wp_get_post_terms(
 								$product->get_id(),

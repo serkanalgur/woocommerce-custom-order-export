@@ -28,17 +28,21 @@ class Ajax_Handler {
 	public function handle_preview_ajax() {
 		// Verify nonce.
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'wexport_nonce' ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Security check failed. Please refresh and try again.', 'wexport' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Security check failed. Please refresh and try again.', 'wexport' ),
+				)
+			);
 			die;
 		}
 
 		// Check capabilities.
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'You do not have permission to perform this action.', 'wexport' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to perform this action.', 'wexport' ),
+				)
+			);
 			die;
 		}
 
@@ -53,21 +57,27 @@ class Ajax_Handler {
 			$preview_data = Admin_Page::generate_preview_data_static( $config );
 
 			if ( is_wp_error( $preview_data ) ) {
-				wp_send_json_error( array(
-					'message' => $preview_data->get_error_message(),
-				) );
+				wp_send_json_error(
+					array(
+						'message' => $preview_data->get_error_message(),
+					)
+				);
 			}
 
-			wp_send_json_success( array(
-				'preview' => $preview_data,
-				'message' => __( 'Preview generated successfully.', 'wexport' ),
-			) );
+			wp_send_json_success(
+				array(
+					'preview' => $preview_data,
+					'message' => __( 'Preview generated successfully.', 'wexport' ),
+				)
+			);
 
 		} catch ( \Exception $e ) {
 			error_log( 'WExport Preview Error: ' . $e->getMessage() );
-			wp_send_json_error( array(
-				'message' => __( 'An error occurred while generating preview.', 'wexport' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'An error occurred while generating preview.', 'wexport' ),
+				)
+			);
 		}
 		die;
 	}
@@ -78,17 +88,21 @@ class Ajax_Handler {
 	public function handle_export_ajax() {
 		// Verify nonce.
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'wexport_nonce' ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Security check failed. Please refresh and try again.', 'wexport' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Security check failed. Please refresh and try again.', 'wexport' ),
+				)
+			);
 			die;
 		}
 
 		// Check capabilities.
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'You do not have permission to perform this action.', 'wexport' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to perform this action.', 'wexport' ),
+				)
+			);
 			die;
 		}
 
@@ -103,24 +117,30 @@ class Ajax_Handler {
 			$result = $manager->export();
 
 			if ( is_wp_error( $result ) ) {
-				wp_send_json_error( array(
-					'message' => $result->get_error_message(),
-				) );
+				wp_send_json_error(
+					array(
+						'message' => $result->get_error_message(),
+					)
+				);
 			}
 
 			// Generate download URL.
 			$download_url = $this->get_download_url( $result );
 
-			wp_send_json_success( array(
-				'download_url' => $download_url,
-				'message' => __( 'Export completed. Starting download...', 'wexport' ),
-			) );
+			wp_send_json_success(
+				array(
+					'download_url' => $download_url,
+					'message'      => __( 'Export completed. Starting download...', 'wexport' ),
+				)
+			);
 
 		} catch ( \Exception $e ) {
 			error_log( 'WExport Export Error: ' . $e->getMessage() );
-			wp_send_json_error( array(
-				'message' => __( 'An error occurred while exporting.', 'wexport' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'An error occurred while exporting.', 'wexport' ),
+				)
+			);
 		}
 		die;
 	}
@@ -155,20 +175,20 @@ class Ajax_Handler {
 		$code_mappings = array();
 		if ( isset( $_POST['custom_codes'] ) && is_array( $_POST['custom_codes'] ) ) {
 			$custom_codes = wp_unslash( (array) $_POST['custom_codes'] );
-			
+
 			// Debug logging
 			error_log( 'WExport: Received custom_codes count: ' . count( $custom_codes ) );
 			error_log( 'WExport: Received custom_codes: ' . wp_json_encode( $custom_codes ) );
-			
+
 			foreach ( $custom_codes as $idx => $mapping ) {
 				error_log( "WExport: Processing mapping index $idx, is_array: " . ( is_array( $mapping ) ? 'yes' : 'no' ) );
-				
+
 				if ( is_array( $mapping ) ) {
 					$mapping = array_map( 'sanitize_text_field', $mapping );
-					
+
 					// Debug each mapping
 					error_log( 'WExport: After sanitize - ' . wp_json_encode( $mapping ) );
-					
+
 					if ( ! empty( $mapping['column_name'] ) && ! empty( $mapping['type'] ) && ! empty( $mapping['source'] ) ) {
 						$code_mappings[ $mapping['column_name'] ] = array(
 							'type'   => $mapping['type'],
@@ -180,25 +200,25 @@ class Ajax_Handler {
 					}
 				}
 			}
-			
+
 			// Debug final mappings
 			error_log( 'WExport: Final code_mappings count: ' . count( $code_mappings ) );
 			error_log( 'WExport: Final code_mappings: ' . wp_json_encode( $code_mappings ) );
 		}
 
 		return array(
-			'format'               => isset( $_POST['export_format'] ) ? sanitize_text_field( wp_unslash( $_POST['export_format'] ) ) : 'csv',
-			'delimiter'            => isset( $_POST['delimiter'] ) ? sanitize_text_field( wp_unslash( $_POST['delimiter'] ) ) : ',',
-			'export_mode'          => isset( $_POST['export_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['export_mode'] ) ) : 'line_item',
-			'date_from'            => $date_from,
-			'date_to'              => $date_to,
-			'order_status'         => $statuses,
-			'columns'              => $columns,
-			'custom_code_mappings' => $code_mappings,
-			'multi_term_separator' => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( wp_unslash( $_POST['multi_term_separator'] ) ) : '|',
-			'include_headers'      => isset( $_POST['include_headers'] ) ? true : false,
+			'format'                             => isset( $_POST['export_format'] ) ? sanitize_text_field( wp_unslash( $_POST['export_format'] ) ) : 'csv',
+			'delimiter'                          => isset( $_POST['delimiter'] ) ? sanitize_text_field( wp_unslash( $_POST['delimiter'] ) ) : ',',
+			'export_mode'                        => isset( $_POST['export_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['export_mode'] ) ) : 'line_item',
+			'date_from'                          => $date_from,
+			'date_to'                            => $date_to,
+			'order_status'                       => $statuses,
+			'columns'                            => $columns,
+			'custom_code_mappings'               => $code_mappings,
+			'multi_term_separator'               => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( wp_unslash( $_POST['multi_term_separator'] ) ) : '|',
+			'include_headers'                    => isset( $_POST['include_headers'] ) ? true : false,
 			'remove_variation_from_product_name' => isset( $_POST['remove_variation_from_product_name'] ) ? true : false,
-			'batch_size'           => 100,
+			'batch_size'                         => 100,
 		);
 		// Persist setting for AJAX flows
 		if ( isset( $config['remove_variation_from_product_name'] ) ) {

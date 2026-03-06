@@ -8,7 +8,7 @@
  */
 
 // Determine the project root directory
-$project_root = dirname( dirname( __FILE__ ) );
+$project_root = dirname( __DIR__ );
 
 // Load Composer autoloader
 if ( file_exists( $project_root . '/vendor/autoload.php' ) ) {

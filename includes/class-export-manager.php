@@ -72,20 +72,20 @@ class Export_Manager {
 	 */
 	private function get_default_config() {
 		return array(
-			'format'               => 'csv',
-			'delimiter'            => ',',
-			'charset'              => 'UTF-8',
-			'use_bom'              => true,
-			'export_mode'          => 'line_item',
-			'date_from'            => '',
-			'date_to'              => '',
-			'order_status'         => array( 'wc-completed' ),
-			'columns'              => array(),
-			'custom_code_mappings' => array(),
-			'multi_term_separator' => '|',
-			'include_headers'      => true,
+			'format'                             => 'csv',
+			'delimiter'                          => ',',
+			'charset'                            => 'UTF-8',
+			'use_bom'                            => true,
+			'export_mode'                        => 'line_item',
+			'date_from'                          => '',
+			'date_to'                            => '',
+			'order_status'                       => array( 'wc-completed' ),
+			'columns'                            => array(),
+			'custom_code_mappings'               => array(),
+			'multi_term_separator'               => '|',
+			'include_headers'                    => true,
 			'remove_variation_from_product_name' => false,
-			'batch_size'           => 100,
+			'batch_size'                         => 100,
 		);
 	}
 
@@ -269,7 +269,7 @@ class Export_Manager {
 		if ( ! empty( $this->config['date_to'] ) ) {
 			// End of the day for date_to. If date_from also exists, append as AND condition.
 			$date_to_condition = '<=' . $this->config['date_to'] . ' 23:59:59';
-			
+
 			if ( ! empty( $this->config['date_from'] ) ) {
 				// Both dates provided - use custom filtering after retrieval.
 				// Store both conditions for post-filtering.
@@ -295,7 +295,7 @@ class Export_Manager {
 		if ( $date_from && $date_to ) {
 			$date_from_ts = strtotime( $date_from );
 			$date_to_ts   = strtotime( $date_to );
-			
+
 			$orders = array_filter(
 				$orders,
 				function ( $order ) use ( $date_from_ts, $date_to_ts ) {
@@ -470,14 +470,14 @@ class Export_Manager {
 				}
 
 				if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
-					$separator = $this->config['multi_term_separator'];
+					$separator   = $this->config['multi_term_separator'];
 					$term_values = array();
-					
+
 					foreach ( $terms as $term ) {
 						// Extract term names and meta when available
 						$term_values[] = $term->name;
 					}
-					
+
 					$codes[ $column_name ] = implode( $separator, $term_values );
 				} else {
 					$codes[ $column_name ] = '';

@@ -35,7 +35,7 @@ class Template_Ajax_Handler {
 
 		// Get template name
 		$template_name = isset( $_POST['template_name'] ) ? sanitize_text_field( wp_unslash( $_POST['template_name'] ) ) : '';
-		$template_id = isset( $_POST['template_id'] ) ? sanitize_text_field( wp_unslash( $_POST['template_id'] ) ) : null;
+		$template_id   = isset( $_POST['template_id'] ) ? sanitize_text_field( wp_unslash( $_POST['template_id'] ) ) : null;
 
 		if ( empty( $template_name ) ) {
 			wp_send_json_error( array( 'message' => __( 'Template name is required.', 'wexport' ) ) );
@@ -51,11 +51,13 @@ class Template_Ajax_Handler {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 		}
 
-		wp_send_json_success( array(
-			'message'    => __( 'Template saved successfully.', 'wexport' ),
-			'template'   => $result,
-			'is_update'  => (bool) $template_id,
-		) );
+		wp_send_json_success(
+			array(
+				'message'   => __( 'Template saved successfully.', 'wexport' ),
+				'template'  => $result,
+				'is_update' => (bool) $template_id,
+			)
+		);
 	}
 
 	/**
@@ -84,9 +86,11 @@ class Template_Ajax_Handler {
 			wp_send_json_error( array( 'message' => __( 'Template not found.', 'wexport' ) ) );
 		}
 
-		wp_send_json_success( array(
-			'template' => $template,
-		) );
+		wp_send_json_success(
+			array(
+				'template' => $template,
+			)
+		);
 	}
 
 	/**
@@ -103,7 +107,7 @@ class Template_Ajax_Handler {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to perform this action.', 'wexport' ) ) );
 		}
 
-		$templates = Template_Manager::get_all_templates();
+		$templates           = Template_Manager::get_all_templates();
 		$default_template_id = Template_Manager::get_default_template_id();
 
 		// Format templates for display
@@ -120,9 +124,11 @@ class Template_Ajax_Handler {
 			$templates
 		);
 
-		wp_send_json_success( array(
-			'templates' => $formatted,
-		) );
+		wp_send_json_success(
+			array(
+				'templates' => $formatted,
+			)
+		);
 	}
 
 	/**
@@ -151,9 +157,11 @@ class Template_Ajax_Handler {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 		}
 
-		wp_send_json_success( array(
-			'message' => __( 'Template deleted successfully.', 'wexport' ),
-		) );
+		wp_send_json_success(
+			array(
+				'message' => __( 'Template deleted successfully.', 'wexport' ),
+			)
+		);
 	}
 
 	/**
@@ -182,10 +190,12 @@ class Template_Ajax_Handler {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 		}
 
-		wp_send_json_success( array(
-			'message'  => __( 'Template duplicated successfully.', 'wexport' ),
-			'template' => $result,
-		) );
+		wp_send_json_success(
+			array(
+				'message'  => __( 'Template duplicated successfully.', 'wexport' ),
+				'template' => $result,
+			)
+		);
 	}
 
 	/**
@@ -214,9 +224,11 @@ class Template_Ajax_Handler {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 		}
 
-		wp_send_json_success( array(
-			'message' => __( 'Default template updated.', 'wexport' ),
-		) );
+		wp_send_json_success(
+			array(
+				'message' => __( 'Default template updated.', 'wexport' ),
+			)
+		);
 	}
 
 	/**
@@ -226,7 +238,7 @@ class Template_Ajax_Handler {
 	 */
 	private function build_config_from_ajax() {
 		$date_from = isset( $_POST['date_from'] ) ? sanitize_text_field( wp_unslash( $_POST['date_from'] ) ) : '';
-		$date_to = isset( $_POST['date_to'] ) ? sanitize_text_field( wp_unslash( $_POST['date_to'] ) ) : '';
+		$date_to   = isset( $_POST['date_to'] ) ? sanitize_text_field( wp_unslash( $_POST['date_to'] ) ) : '';
 
 		$statuses = isset( $_POST['order_status'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['order_status'] ) ) : array( 'wc-completed' );
 
@@ -249,15 +261,15 @@ class Template_Ajax_Handler {
 				if ( is_array( $mapping ) ) {
 					// Sanitize and trim values
 					$mapping = array_map(
-						function( $val ) {
+						function ( $val ) {
 							return trim( sanitize_text_field( $val ) );
 						},
 						$mapping
 					);
 
 					$column_name = $mapping['column_name'] ?? '';
-					$type = $mapping['type'] ?? '';
-					$source = $mapping['source'] ?? '';
+					$type        = $mapping['type'] ?? '';
+					$source      = $mapping['source'] ?? '';
 
 					if ( ! empty( $column_name ) && ! empty( $type ) && ! empty( $source ) ) {
 						$code_mappings[ $column_name ] = array(
@@ -270,16 +282,16 @@ class Template_Ajax_Handler {
 		}
 
 		return array(
-			'format'               => isset( $_POST['export_format'] ) ? sanitize_text_field( wp_unslash( $_POST['export_format'] ) ) : 'csv',
-			'delimiter'            => isset( $_POST['delimiter'] ) ? sanitize_text_field( wp_unslash( $_POST['delimiter'] ) ) : ',',
-			'export_mode'          => isset( $_POST['export_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['export_mode'] ) ) : 'line_item',
-			'date_from'            => $date_from,
-			'date_to'              => $date_to,
-			'order_status'         => $statuses,
-			'columns'              => $columns,
-			'custom_code_mappings' => $code_mappings,
-			'multi_term_separator' => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( wp_unslash( $_POST['multi_term_separator'] ) ) : '|',
-			'include_headers'      => isset( $_POST['include_headers'] ) ? true : false,
+			'format'                             => isset( $_POST['export_format'] ) ? sanitize_text_field( wp_unslash( $_POST['export_format'] ) ) : 'csv',
+			'delimiter'                          => isset( $_POST['delimiter'] ) ? sanitize_text_field( wp_unslash( $_POST['delimiter'] ) ) : ',',
+			'export_mode'                        => isset( $_POST['export_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['export_mode'] ) ) : 'line_item',
+			'date_from'                          => $date_from,
+			'date_to'                            => $date_to,
+			'order_status'                       => $statuses,
+			'columns'                            => $columns,
+			'custom_code_mappings'               => $code_mappings,
+			'multi_term_separator'               => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( wp_unslash( $_POST['multi_term_separator'] ) ) : '|',
+			'include_headers'                    => isset( $_POST['include_headers'] ) ? true : false,
 			'remove_variation_from_product_name' => isset( $_POST['remove_variation_from_product_name'] ) ? true : false,
 		);
 	}

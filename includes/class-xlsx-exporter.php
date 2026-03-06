@@ -43,7 +43,7 @@ class Xlsx_Exporter {
 					$cell->getStyle()->getFill()->setFillType( Fill::FILL_SOLID );
 					$cell->getStyle()->getFill()->getStartColor()->setRGB( 'E8E8E8' );
 
-					$col++;
+					++$col;
 				}
 			}
 
@@ -61,9 +61,9 @@ class Xlsx_Exporter {
 						$cell->getStyle()->getNumberFormat()->setFormatCode( '0.00' );
 					}
 
-					$col++;
+					++$col;
 				}
-				$row_num++;
+				++$row_num;
 			}
 
 			// Auto-fit columns

@@ -33,7 +33,7 @@ class Admin_Page {
 	 * Handle export request.
 	 */
 	private static function handle_export() {
-		$config  = self::build_export_config();
+		$config = self::build_export_config();
 		// Persist user preference
 		self::persist_export_settings( $config );
 		$manager = new Export_Manager( $config );
@@ -97,9 +97,9 @@ class Admin_Page {
 	private static function generate_preview_data( $manager ) {
 		try {
 			// Create temporary preview file.
-			$upload_dir    = wp_upload_dir();
-			$preview_dir   = $upload_dir['basedir'] . '/wexport/';
-			$preview_file  = $preview_dir . 'preview_temp_' . gmdate( 'YmdHis' ) . '_' . uniqid() . '.csv';
+			$upload_dir   = wp_upload_dir();
+			$preview_dir  = $upload_dir['basedir'] . '/wexport/';
+			$preview_file = $preview_dir . 'preview_temp_' . gmdate( 'YmdHis' ) . '_' . uniqid() . '.csv';
 
 			// Ensure directory exists.
 			if ( ! is_dir( $preview_dir ) ) {
@@ -117,7 +117,7 @@ class Admin_Page {
 
 			// Write headers.
 			if ( $config['include_headers'] ) {
-				$columns = array_merge(
+				$columns    = array_merge(
 					self::get_order_columns_for_export( $config ),
 					self::get_item_columns_for_export( $config ),
 					array_keys( $config['custom_code_mappings'] ?? array() )
@@ -164,14 +164,14 @@ class Admin_Page {
 					}
 				} else {
 					// One row per order.
-					$items = $order->get_items();
+					$items     = $order->get_items();
 					$all_items = array();
 					foreach ( $items as $item ) {
-						$item_data = self::format_item_for_preview( $item, $order, $config );
+						$item_data   = self::format_item_for_preview( $item, $order, $config );
 						$all_items[] = $item_data;
 					}
 					if ( ! empty( $all_items ) ) {
-						$merged = self::merge_items_for_preview( $all_items, $config['multi_term_separator'] );
+						$merged    = self::merge_items_for_preview( $all_items, $config['multi_term_separator'] );
 						$final_row = array_merge( $row_data, $merged );
 					} else {
 						$final_row = $row_data;
@@ -259,7 +259,7 @@ class Admin_Page {
 	 * @return array
 	 */
 	private static function format_order_for_preview( $order, $config ) {
-		$data = array();
+		$data    = array();
 		$columns = self::get_order_columns_for_export( $config );
 
 		foreach ( $columns as $column ) {
@@ -280,11 +280,11 @@ class Admin_Page {
 					$data[ $column ] = $order->get_billing_phone();
 					break;
 				case 'shipping_address':
-					$addr = $order->get_formatted_shipping_address();
+					$addr            = $order->get_formatted_shipping_address();
 					$data[ $column ] = str_replace( '<br/>', ', ', $addr );
 					break;
 				case 'shipping_method':
-					$methods = $order->get_shipping_methods();
+					$methods         = $order->get_shipping_methods();
 					$data[ $column ] = ! empty( $methods ) ? implode( ', ', array_keys( $methods ) ) : '';
 					break;
 				case 'payment_method':
@@ -313,7 +313,7 @@ class Admin_Page {
 	 * @return array
 	 */
 	private static function format_item_for_preview( $item, $order, $config ) {
-		$data = array();
+		$data    = array();
 		$columns = self::get_item_columns_for_export( $config );
 
 		foreach ( $columns as $column ) {
@@ -322,7 +322,7 @@ class Admin_Page {
 					$data[ $column ] = $item->get_product_id();
 					break;
 				case 'sku':
-					$product = $item->get_product();
+					$product         = $item->get_product();
 					$data[ $column ] = $product ? $product->get_sku() : '';
 					break;
 				case 'product_name':
@@ -331,7 +331,7 @@ class Admin_Page {
 						if ( ! empty( $config['remove_variation_from_product_name'] ) && $product->is_type( 'variation' ) ) {
 							$parent_id = $product->get_parent_id();
 							if ( $parent_id ) {
-								$parent_product = wc_get_product( $parent_id );
+								$parent_product  = wc_get_product( $parent_id );
 								$data[ $column ] = $parent_product ? $parent_product->get_name() : $item->get_name();
 							} else {
 								$data[ $column ] = $item->get_name();
@@ -398,7 +398,7 @@ class Admin_Page {
 			$product = $item->get_product();
 			if ( $product ) {
 				$custom_codes = self::get_product_custom_codes_for_preview( $product->get_id(), $config['custom_code_mappings'], $config );
-				$data = array_merge( $data, $custom_codes );
+				$data         = array_merge( $data, $custom_codes );
 			}
 		}
 
@@ -422,11 +422,11 @@ class Admin_Page {
 		}
 
 		$merged = array();
-		$first = $items[0];
+		$first  = $items[0];
 
 		foreach ( array_keys( $first ) as $column ) {
-			$values = array_column( $items, $column );
-			$values = array_filter(
+			$values            = array_column( $items, $column );
+			$values            = array_filter(
 				$values,
 				function ( $v ) {
 					return ! empty( $v );
@@ -492,13 +492,13 @@ class Admin_Page {
 
 					// For variation products, prioritize the specific attribute value first.
 					// This returns only the selected variation value (e.g., "50g" for pa_gramaj).
-					if ( $product->is_type( 'variation' ) ) {
-						$attr_value = $product->get_attribute( $taxonomy );
-						if ( ! empty( $attr_value ) ) {
-							$codes[ $column_name ] = sanitize_text_field( $attr_value );
-							continue;
-						}
+				if ( $product->is_type( 'variation' ) ) {
+					$attr_value = $product->get_attribute( $taxonomy );
+					if ( ! empty( $attr_value ) ) {
+						$codes[ $column_name ] = sanitize_text_field( $attr_value );
+						continue;
 					}
+				}
 
 					// Fallback: Try to get taxonomy terms assigned to the product.
 					$terms = wp_get_post_terms(
@@ -508,23 +508,23 @@ class Admin_Page {
 					);
 
 					// If no terms on the product itself and it's a variation, check parent.
-					if ( ( empty( $terms ) || is_wp_error( $terms ) ) && $product->is_type( 'variation' ) ) {
-						$terms = wp_get_post_terms(
-							$taxonomy_product_id,
-							$taxonomy,
-							array( 'fields' => 'all' )
-						);
-					}
+				if ( ( empty( $terms ) || is_wp_error( $terms ) ) && $product->is_type( 'variation' ) ) {
+					$terms = wp_get_post_terms(
+						$taxonomy_product_id,
+						$taxonomy,
+						array( 'fields' => 'all' )
+					);
+				}
 
 				if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
-					$separator = $config['multi_term_separator'];
+					$separator   = $config['multi_term_separator'];
 					$term_values = array();
-					
+
 					foreach ( $terms as $term ) {
 						// Extract term names and meta when available
 						$term_values[] = $term->name;
 					}
-					
+
 					$codes[ $column_name ] = implode( $separator, $term_values );
 				} else {
 					$codes[ $column_name ] = '';
@@ -596,16 +596,16 @@ class Admin_Page {
 		}
 
 		return array(
-			'format'               => isset( $_POST['export_format'] ) ? sanitize_text_field( $_POST['export_format'] ) : 'csv',
-			'delimiter'            => isset( $_POST['delimiter'] ) ? sanitize_text_field( $_POST['delimiter'] ) : ',',
-			'export_mode'          => isset( $_POST['export_mode'] ) ? sanitize_text_field( $_POST['export_mode'] ) : 'line_item',
-			'date_from'            => $date_from,
-			'date_to'              => $date_to,
-			'order_status'         => $statuses,
-			'columns'              => $columns,
-			'custom_code_mappings' => $code_mappings,
-			'multi_term_separator' => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( $_POST['multi_term_separator'] ) : '|',
-			'include_headers'      => isset( $_POST['include_headers'] ) ? true : false,
+			'format'                             => isset( $_POST['export_format'] ) ? sanitize_text_field( $_POST['export_format'] ) : 'csv',
+			'delimiter'                          => isset( $_POST['delimiter'] ) ? sanitize_text_field( $_POST['delimiter'] ) : ',',
+			'export_mode'                        => isset( $_POST['export_mode'] ) ? sanitize_text_field( $_POST['export_mode'] ) : 'line_item',
+			'date_from'                          => $date_from,
+			'date_to'                            => $date_to,
+			'order_status'                       => $statuses,
+			'columns'                            => $columns,
+			'custom_code_mappings'               => $code_mappings,
+			'multi_term_separator'               => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( $_POST['multi_term_separator'] ) : '|',
+			'include_headers'                    => isset( $_POST['include_headers'] ) ? true : false,
 			'remove_variation_from_product_name' => isset( $_POST['remove_variation_from_product_name'] ) ? true : false,
 		);
 	}
@@ -673,9 +673,9 @@ class Admin_Page {
 	private static function generate_preview_data_internal( $config ) {
 		try {
 			// Create temporary preview file.
-			$upload_dir    = wp_upload_dir();
-			$preview_dir   = $upload_dir['basedir'] . '/wexport/';
-			$preview_file  = $preview_dir . 'preview_temp_' . gmdate( 'YmdHis' ) . '_' . uniqid() . '.csv';
+			$upload_dir   = wp_upload_dir();
+			$preview_dir  = $upload_dir['basedir'] . '/wexport/';
+			$preview_file = $preview_dir . 'preview_temp_' . gmdate( 'YmdHis' ) . '_' . uniqid() . '.csv';
 
 			// Ensure directory exists.
 			if ( ! is_dir( $preview_dir ) ) {
@@ -690,7 +690,7 @@ class Admin_Page {
 
 			// Write headers.
 			if ( $config['include_headers'] ) {
-				$columns = array_merge(
+				$columns    = array_merge(
 					self::get_order_columns_for_export( $config ),
 					self::get_item_columns_for_export( $config ),
 					array_keys( $config['custom_code_mappings'] ?? array() )
@@ -737,14 +737,14 @@ class Admin_Page {
 					}
 				} else {
 					// One row per order.
-					$items = $order->get_items();
+					$items     = $order->get_items();
 					$all_items = array();
 					foreach ( $items as $item ) {
-						$item_data = self::format_item_for_preview( $item, $order, $config );
+						$item_data   = self::format_item_for_preview( $item, $order, $config );
 						$all_items[] = $item_data;
 					}
 					if ( ! empty( $all_items ) ) {
-						$merged = self::merge_items_for_preview( $all_items, $config['multi_term_separator'] );
+						$merged    = self::merge_items_for_preview( $all_items, $config['multi_term_separator'] );
 						$final_row = array_merge( $row_data, $merged );
 					} else {
 						$final_row = $row_data;
@@ -773,12 +773,12 @@ class Admin_Page {
 	 */
 	private static function get_current_settings() {
 		return array(
-			'export_mode'     => get_option( 'wexport_export_mode', 'line_item' ),
-			'delimiter'       => get_option( 'wexport_delimiter', ',' ),
-			'export_format'   => get_option( 'wexport_export_format', 'csv' ),
-			'include_headers' => get_option( 'wexport_include_headers', true ),
-			'column_mappings' => get_option( 'wexport_column_mappings', array() ),
-			'custom_codes'    => get_option( 'wexport_custom_codes', array() ),
+			'export_mode'                        => get_option( 'wexport_export_mode', 'line_item' ),
+			'delimiter'                          => get_option( 'wexport_delimiter', ',' ),
+			'export_format'                      => get_option( 'wexport_export_format', 'csv' ),
+			'include_headers'                    => get_option( 'wexport_include_headers', true ),
+			'column_mappings'                    => get_option( 'wexport_column_mappings', array() ),
+			'custom_codes'                       => get_option( 'wexport_custom_codes', array() ),
 			'remove_variation_from_product_name' => get_option( 'wexport_remove_variation_from_product_name', false ),
 		);
 	}

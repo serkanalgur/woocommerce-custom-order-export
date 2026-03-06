@@ -45,12 +45,12 @@ class Template_Manager {
 	 * @return array|null
 	 */
 	public static function get_template( $template_id ) {
-		$all_templates = get_option( self::TEMPLATES_OPTION_KEY, array() );
+		$all_templates   = get_option( self::TEMPLATES_OPTION_KEY, array() );
 		$current_user_id = get_current_user_id();
 
 		foreach ( $all_templates as $template ) {
-			if ( isset( $template['id'] ) && $template['id'] === $template_id && 
-				 isset( $template['user_id'] ) && $template['user_id'] === $current_user_id ) {
+			if ( isset( $template['id'] ) && $template['id'] === $template_id &&
+				isset( $template['user_id'] ) && $template['user_id'] === $current_user_id ) {
 				return $template;
 			}
 		}
@@ -85,18 +85,18 @@ class Template_Manager {
 		}
 
 		$current_user_id = get_current_user_id();
-		$now = gmdate( 'Y-m-d H:i:s' );
+		$now             = gmdate( 'Y-m-d H:i:s' );
 
 		// If updating existing template
 		if ( $template_id ) {
 			$found = false;
 			foreach ( $all_templates as &$template ) {
-				if ( isset( $template['id'] ) && $template['id'] === $template_id && 
-					 isset( $template['user_id'] ) && $template['user_id'] === $current_user_id ) {
+				if ( isset( $template['id'] ) && $template['id'] === $template_id &&
+					isset( $template['user_id'] ) && $template['user_id'] === $current_user_id ) {
 					$template['name']       = $template_name;
 					$template['config']     = $config;
 					$template['updated_at'] = $now;
-					$found = true;
+					$found                  = true;
 					break;
 				}
 			}
@@ -137,13 +137,13 @@ class Template_Manager {
 	 * @return bool|WP_Error True on success, WP_Error on failure.
 	 */
 	public static function delete_template( $template_id ) {
-		$all_templates = get_option( self::TEMPLATES_OPTION_KEY, array() );
+		$all_templates   = get_option( self::TEMPLATES_OPTION_KEY, array() );
 		$current_user_id = get_current_user_id();
 
 		$found = false;
 		foreach ( $all_templates as $key => $template ) {
-			if ( isset( $template['id'] ) && $template['id'] === $template_id && 
-				 isset( $template['user_id'] ) && $template['user_id'] === $current_user_id ) {
+			if ( isset( $template['id'] ) && $template['id'] === $template_id &&
+				isset( $template['user_id'] ) && $template['user_id'] === $current_user_id ) {
 				unset( $all_templates[ $key ] );
 				$found = true;
 				break;
