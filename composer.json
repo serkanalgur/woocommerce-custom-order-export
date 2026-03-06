@@ -1,5 +1,5 @@
 {
-  "name": "wexport/wexport",
+  "name": "serkanalgur/woocommerce-custom-order-export",
   "description": "Export WooCommerce orders to CSV/XLSX with product-level custom codes",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",

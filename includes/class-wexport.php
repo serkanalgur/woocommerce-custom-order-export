@@ -37,15 +37,7 @@ class WExport {
 	 * Constructor.
 	 */
 	private function __construct() {
-		$this->register_autoloader();
 		$this->setup_hooks();
-	}
-
-	/**
-	 * Register the autoloader.
-	 */
-	private function register_autoloader() {
-		spl_autoload_register( 'wexport_class_autoloader' );
 	}
 
 	/**

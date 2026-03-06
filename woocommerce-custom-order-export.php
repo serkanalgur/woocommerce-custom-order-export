@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: WooCommerce Custom Order Export
- * Plugin URI: https://serkanalgur.com.tr/
+ * Plugin URI: https://github.com/serkanalgur/woocommerce-custom-order-export
  * Description: Export WooCommerce orders to CSV/XLSX with product-level custom codes and metadata.
- * Version: 1.7.2
+ * Version: 1.7.3
  * Author: Serkan Algur
- * Author URI: https://serkanalgur.com.tr
+ * Author URI: https://github.com/serkanalgur
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wexport
@@ -23,12 +23,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'WEXPORT_VERSION', '1.7.2' );
+define( 'WEXPORT_VERSION', '1.7.3' );
 define( 'WEXPORT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WEXPORT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WEXPORT_INCLUDES_DIR', WEXPORT_PLUGIN_DIR . 'includes/' );
 define( 'WEXPORT_ADMIN_DIR', WEXPORT_PLUGIN_DIR . 'admin/' );
 define( 'WEXPORT_PLUGIN_FILE', __FILE__ );
+
+/**
+ * Register the autoloader.
+ */
+spl_autoload_register( 'wexport_class_autoloader' );
 
 /**
  * WExport class autoloader.
@@ -51,8 +56,9 @@ function wexport_class_autoloader( $class_name ) {
 	$file_name = str_replace( '\\', DIRECTORY_SEPARATOR, $file_name );
 
 	// Build the file path.
-	if ( strpos( $file_name, 'admin' ) === 0 ) {
-		$dir_file = WEXPORT_ADMIN_DIR . 'class-' . substr( $file_name, strlen( 'admin' . DIRECTORY_SEPARATOR ) ) . '.php';
+	if ( 0 === strpos( $file_name, 'admin' . DIRECTORY_SEPARATOR ) ) {
+		$file_name = substr( $file_name, strlen( 'admin' . DIRECTORY_SEPARATOR ) );
+		$dir_file  = WEXPORT_ADMIN_DIR . 'class-' . $file_name . '.php';
 	} else {
 		$dir_file = WEXPORT_INCLUDES_DIR . 'class-' . $file_name . '.php';
 	}

@@ -1,14 +1,14 @@
 === WooCommerce Custom Order Export ===
 Contributors: kaisercrazy
 Author: Serkan Algur
-Author URI: https://serkanalgur.com.tr
-Plugin URI: https://serkanalgur.com.tr
+Author URI: https://github.com/serkanalgur
+Plugin URI: https://github.com/serkanalgur/woocommerce-custom-order-export
 Tags: woocommerce, export, csv, xlsx, orders, custom codes
 Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 6.4
 Requires Plugins: woocommerce
-Stable tag: 1.7.2
+Stable tag: 1.7.3
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,7 +47,7 @@ WooCommerce Order Export Pro is a powerful, production-ready plugin that allows 
 Or manually:
 1. Extract the zip file to `/wp-content/plugins/wexport/`
 2. Go to **Plugins** and activate **WooCommerce Order Export Pro**
-3. Go to **WooCommerce** > **Custom Order Export**
+3. Go to **Commerce** > **Custom Order Export**
 
 == Quick Start ==
 
@@ -98,6 +98,28 @@ Map custom product information to your export:
 = Order Fields =
 - order_id
 - order_date
+
+== Changelog ==
+
+= 1.7.3 =
+* Fix: spl_autoload_register was missing after refactoring.
+* Fix: Autoloader path mapping for Admin namespace.
+
+= 1.7.2 =
+* Change: Moved WExport class to includes/class-wexport.php.
+* Change: Autoloading logic updated.
+* Fix: WP Coding Standards in admin and export manager.
+* Fix: Security nonce checks and form sanitization.
+* Performance: Optimized preview generation.
+
+= 1.7.1 =
+* Change: Template config now includes `remove_variation_from_product_name`.
+* Change: Form data collection handles variation name option.
+
+= 1.7.0 =
+* Fix: Taxonomy custom columns for variation products now show specific attribute values.
+* Change: Prioritize variation attributes over parent taxonomy terms.
+* Change: Persist `remove_variation_from_product_name` setting via AJAX and regular flows.
 - order_status
 - order_total
 - customer_name
@@ -138,6 +160,11 @@ No limit! The plugin uses streaming output to handle large exports efficiently.
 Not yet, but you can use the programmatic API or hooks to schedule exports via WordPress cron.
 
 == Changelog ==
+
+= 1.7.3 =
+
+== Fixed ==
+- Admin page fix
 
 = 1.7.2 =
 

@@ -2,6 +2,12 @@
 
 All notable changes to the WooCommerce Order Export Pro plugin will be documented in this file.
 
+## [1.7.3] - 2026-03-06
+
+### Fixed
+- **Autoloading**: Fixed critical issue where `spl_autoload_register` was missing after refactoring, preventing classes from being loaded.
+- **Admin Routing**: Resolved namespace-to-path mapping error in the autoloader for the `WExport\Admin` namespace, ensuring admin features are correctly located.
+
 ## [1.7.2] - 2026-03-06
 
 ### Changed

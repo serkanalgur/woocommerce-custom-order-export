@@ -16,6 +16,18 @@ A production-ready WordPress plugin for exporting WooCommerce orders to CSV/XLSX
 - **Extensible**: Hooks and filters for custom development
 - **Security**: Proper nonces, capability checks, and sanitization
 
+## Changelog
+
+### 1.7.3 (2026-03-06)
+- **Fix**: Re-registered autoloader via `spl_autoload_register` which was lost after `WExport` class refactor.
+- **Fix**: Corrected autoloader directory mapping for `WExport\Admin` namespace to fix admin area disappearance.
+
+### 1.7.2 (2026-03-06)
+- **Changed**: Decoupled bootstrap initialization by moving `WExport` class to `includes/class-wexport.php`.
+- **Fixed**: Multiple WordPress Coding Standards issues.
+- **Improved**: Hardened security with better nonce validation and input sanitization.
+- **Optimized**: Preview generation for small datasets is now faster.
+
 ## Requirements
 
 - WordPress 6.0+
@@ -504,6 +516,11 @@ For issues or feature requests, please contact support or submit via the plugin 
 GPL v2 or later - See LICENSE file
 
 ## Changelog
+
+### 1.7.2 - 2026-03-06
+
+**Fixed**
+- Admin page fix
 
 ### 1.7.2 - 2026-03-06
 
