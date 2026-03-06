@@ -110,14 +110,14 @@ class Export_Manager {
 			// Apply pre-export hook.
 			do_action( 'wexport_before_export', $this );
 
-			// Determine export format
+			// Determine export format.
 			$format = $this->config['format'] ?? 'csv';
 
 			if ( 'xlsx' === $format ) {
-				// XLSX export - collect all rows in memory
+				// XLSX export - collect all rows in memory.
 				$rows_exported = $this->export_xlsx( $file_path );
 			} else {
-				// CSV export - streaming
+				// CSV export - streaming.
 				$rows_exported = $this->export_csv( $file_path );
 			}
 
@@ -159,12 +159,13 @@ class Export_Manager {
 	 *
 	 * @param string $file_path File path.
 	 * @return int Number of rows exported.
+	 * @throws \Exception If the file cannot be opened.
 	 */
 	private function export_csv( $file_path ) {
 		// Open file for writing.
 		$this->file_handle = fopen( $file_path, 'w' );
 		if ( ! $this->file_handle ) {
-			throw new \Exception( __( 'Could not open export file.', 'wexport' ) );
+			throw new \Exception( esc_html__( 'Could not open export file.', 'wexport' ) );
 		}
 
 		// Write headers if needed.
@@ -186,31 +187,30 @@ class Export_Manager {
 	 *
 	 * @param string $file_path File path.
 	 * @return int Number of rows exported.
+	 * @throws \Exception If the file cannot be written.
 	 */
 	private function export_xlsx( $file_path ) {
-		// Collect headers
+		// Collect headers.
 		$this->headers = array_merge(
 			$this->get_order_columns(),
 			$this->get_item_columns(),
 			array_keys( $this->config['custom_code_mappings'] ?? array() )
 		);
 
-		// Initialize rows buffer
+		// Initialize rows buffer.
 		$this->rows_buffer = array();
 
 		// Fetch and process orders.
 		$rows_exported = $this->process_orders();
 
-		// Write XLSX file
+		// Write XLSX file.
 		if ( $rows_exported > 0 ) {
 			if ( ! Xlsx_Exporter::export( $file_path, $this->headers, $this->rows_buffer ) ) {
-				throw new \Exception( __( 'Could not write XLSX file.', 'wexport' ) );
+				throw new \Exception( esc_html__( 'Could not write XLSX file.', 'wexport' ) );
 			}
-		} else {
-			// Create empty XLSX with just headers
-			if ( ! Xlsx_Exporter::export( $file_path, $this->headers, array() ) ) {
-				throw new \Exception( __( 'Could not write XLSX file.', 'wexport' ) );
-			}
+		} elseif ( ! Xlsx_Exporter::export( $file_path, $this->headers, array() ) ) {
+			// Create empty XLSX with just headers.
+			throw new \Exception( esc_html__( 'Could not write XLSX file.', 'wexport' ) );
 		}
 
 		return $rows_exported;
@@ -402,18 +402,18 @@ class Export_Manager {
 	private function get_product_custom_codes( $product_id, $mappings ) {
 		$codes = array();
 
-		// Get the product object to check if it's a variation
+		// Get the product object to check if it's a variation.
 		$product = wc_get_product( $product_id );
 		if ( ! $product ) {
-			// If product doesn't exist, return empty codes
+			// If product doesn't exist, return empty codes.
 			foreach ( $mappings as $column_name => $mapping ) {
 				$codes[ $column_name ] = '';
 			}
 			return $codes;
 		}
 
-		// For variations, use the parent product ID for taxonomy terms
-		// Variations inherit taxonomy assignments from the parent
+		// For variations, use the parent product ID for taxonomy terms.
+		// Variations inherit taxonomy assignments from the parent.
 		$taxonomy_product_id = $product_id;
 		if ( $product->is_type( 'variation' ) ) {
 			$parent_id = $product->get_parent_id();
@@ -474,7 +474,7 @@ class Export_Manager {
 					$term_values = array();
 
 					foreach ( $terms as $term ) {
-						// Extract term names and meta when available
+						// Extract term names and meta when available.
 						$term_values[] = $term->name;
 					}
 
@@ -567,14 +567,14 @@ class Export_Manager {
 			$ordered[ $column ] = $row[ $column ] ?? '';
 		}
 
-		// Determine export format
+		// Determine export format.
 		$format = $this->config['format'] ?? 'csv';
 
 		if ( 'xlsx' === $format ) {
-			// Buffer row for XLSX export
+			// Buffer row for XLSX export.
 			$this->rows_buffer[] = $ordered;
 		} else {
-			// Write to CSV file
+			// Write to CSV file.
 			$csv_row = $this->formatter->format_csv_row( $ordered );
 			fwrite( $this->file_handle, $csv_row );
 		}
@@ -647,13 +647,19 @@ class Export_Manager {
 		$upload_dir = wp_upload_dir();
 		$export_dir = $upload_dir['basedir'] . '/wexport/';
 
+		global $wp_filesystem;
+		if ( empty( $wp_filesystem ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
 		// Create directory if it doesn't exist.
-		if ( ! is_dir( $export_dir ) ) {
+		if ( ! $wp_filesystem->is_dir( $export_dir ) ) {
 			wp_mkdir_p( $export_dir );
 		}
 
 		// Check if writable.
-		if ( ! is_writable( $export_dir ) ) {
+		if ( ! $wp_filesystem->is_writable( $export_dir ) ) {
 			return new \WP_Error( 'not_writable', __( 'Export directory is not writable.', 'wexport' ) );
 		}
 

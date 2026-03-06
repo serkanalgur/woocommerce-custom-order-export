@@ -74,10 +74,10 @@ $default_date_to   = gmdate( 'Y-m-d' );
 					);
 				}
 			}
+		}
 
-			if ( isset( $_POST['remove_variation_from_product_name'] ) ) {
-				$form_data['remove_variation_from_product_name'] = 1;
-			}
+		if ( isset( $_POST['remove_variation_from_product_name'] ) ) {
+			$form_data['remove_variation_from_product_name'] = 1;
 		}
 	}
 

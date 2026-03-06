@@ -8,7 +8,7 @@ Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 6.4
 Requires Plugins: woocommerce
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,12 +139,18 @@ Not yet, but you can use the programmatic API or hooks to schedule exports via W
 
 == Changelog ==
 
-= 1.7.1 =
+= 1.7.2 =
+
+== Changed ==
+- **Architecture**: Refactored core plugin structure by moving the `WExport` class to its own file (`includes/class-wexport.php`) for better maintainability and PSR-compliant autoloading.
 
 == Fixed ==
-- **Template System**: `remove_variation_from_product_name` checkbox value is now correctly saved in template config and loaded when templates are restored. Previously, this setting was only saved globally but not included in individual template configurations.
+- **Security**: Hardened AJAX and form processing with updated nonce verification and input sanitization across admin and export modules.
+- **WP Standards**: Comprehensive fix for WordPress Coding Standards (PHPCS) violations, including inline comment punctuation, docblock @throws tags, and Yoda conditions.
+- **File System**: Improved file operation safety by integrating `WP_Filesystem` for directory and permission checks.
+- **Preview System**: Optimized preview generation to be more memory-efficient by avoiding redundant temporary file writes.
 
-= 1.7.0 =
+= 1.7.1 =
 
 == Changed ==
 - Taxonomy handling extended: Added a final fallback to read attribute strings from `$product->get_attribute($taxonomy)` when no taxonomy terms are found on the variation or parent product. This ensures attribute values stored directly on variations export correctly.

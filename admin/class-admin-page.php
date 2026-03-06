@@ -96,34 +96,24 @@ class Admin_Page {
 	 */
 	private static function generate_preview_data( $manager ) {
 		try {
-			// Create temporary preview file.
-			$upload_dir   = wp_upload_dir();
-			$preview_dir  = $upload_dir['basedir'] . '/wexport/';
-			$preview_file = $preview_dir . 'preview_temp_' . gmdate( 'YmdHis' ) . '_' . uniqid() . '.csv';
-
-			// Ensure directory exists.
-			if ( ! is_dir( $preview_dir ) ) {
-				wp_mkdir_p( $preview_dir );
-			}
-
-			// Open file for writing.
-			$file_handle = fopen( $preview_file, 'w' );
-			if ( ! $file_handle ) {
-				return new \WP_Error( 'file_error', __( 'Could not create preview file.', 'wexport' ) );
+			global $wp_filesystem;
+			if ( empty( $wp_filesystem ) ) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+				WP_Filesystem();
 			}
 
 			// Get config for preview.
-			$config = $manager->get_config();
+			$config  = $manager->get_config();
+			$content = '';
 
 			// Write headers.
 			if ( $config['include_headers'] ) {
-				$columns    = array_merge(
+				$columns  = array_merge(
 					self::get_order_columns_for_export( $config ),
 					self::get_item_columns_for_export( $config ),
 					array_keys( $config['custom_code_mappings'] ?? array() )
 				);
-				$header_row = self::format_csv_row( $columns, $config['delimiter'] );
-				fwrite( $file_handle, $header_row );
+				$content .= self::format_csv_row( $columns, $config['delimiter'] );
 			}
 
 			// Get a small batch of orders (5 rows).
@@ -138,29 +128,23 @@ class Admin_Page {
 			);
 
 			if ( empty( $orders ) ) {
-				fclose( $file_handle );
-				$preview_content = file_get_contents( $preview_file );
-				if ( false === $preview_content ) {
-					$preview_content = __( 'No orders found for preview.', 'wexport' );
-				}
-				unlink( $preview_file );
-				return $preview_content ?: __( 'No data to preview.', 'wexport' );
+				return ( '' !== $content ) ? $content : __( 'No data to preview.', 'wexport' );
 			}
 
 			// Process first 5 orders.
 			foreach ( $orders as $order ) {
 				$row_data = self::format_order_for_preview( $order, $config );
-				if ( $config['export_mode'] === 'line_item' ) {
+				if ( 'line_item' === $config['export_mode'] ) {
 					// One row per line item.
 					$items = $order->get_items();
 					if ( ! empty( $items ) ) {
 						foreach ( $items as $item ) {
 							$item_data = self::format_item_for_preview( $item, $order, $config );
 							$final_row = array_merge( $row_data, $item_data );
-							fwrite( $file_handle, self::format_csv_row( $final_row, $config['delimiter'] ) );
+							$content  .= self::format_csv_row( $final_row, $config['delimiter'] );
 						}
 					} else {
-						fwrite( $file_handle, self::format_csv_row( $row_data, $config['delimiter'] ) );
+						$content .= self::format_csv_row( $row_data, $config['delimiter'] );
 					}
 				} else {
 					// One row per order.
@@ -176,17 +160,11 @@ class Admin_Page {
 					} else {
 						$final_row = $row_data;
 					}
-					fwrite( $file_handle, self::format_csv_row( $final_row, $config['delimiter'] ) );
+					$content .= self::format_csv_row( $final_row, $config['delimiter'] );
 				}
 			}
 
-			fclose( $file_handle );
-
-			// Read preview content.
-			$preview_content = file_get_contents( $preview_file );
-			unlink( $preview_file );
-
-			return $preview_content ?: __( 'Unable to generate preview.', 'wexport' );
+			return ( '' !== $content ) ? $content : __( 'Unable to generate preview.', 'wexport' );
 
 		} catch ( \Exception $e ) {
 			return new \WP_Error( 'preview_error', $e->getMessage() );

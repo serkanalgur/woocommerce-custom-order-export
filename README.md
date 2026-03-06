@@ -505,12 +505,18 @@ GPL v2 or later - See LICENSE file
 
 ## Changelog
 
-### 1.7.1 - 2025-12-01
+### 1.7.2 - 2026-03-06
+
+**Changed**
+- **Refactoring**: Moved `WExport` core class to [includes/class-wexport.php](includes/class-wexport.php) to separate bootstrap logic from core architecture and improve PSR autoloading.
 
 **Fixed**
-- **Template System**: `remove_variation_from_product_name` checkbox value is now correctly saved in template config and loaded when templates are restored. Previously, this setting was only saved globally but not included in individual template configurations.
+- **WP Coding Standards**: Resolved numerous violations across the codebase, including inline comment punctuation, docblock @throws tags, for better compliance with WordPress standards.
+- **Security**: Strengthened security by adding missing nonce verification and proper `$_POST` sanitization in the admin module.
+- **File System**: Improved directory handling by integrating `WP_Filesystem` for path and permission checks.
+- **Preview Optimization**: Refactored the preview generation logic to avoid redundant file system writes/reads, keeping processing in-memory where possible.
 
-### 1.7.0 - 2025-11-29
+### 1.7.1 - 2025-12-01
 
 **Fixed**
 - **Critical**: Taxonomy custom columns now correctly show only the variation-specific attribute value for variation products, instead of showing all taxonomy terms from the parent product. When exporting a variation with a selected attribute (e.g., "50g" for `pa_gramaj`), only that specific value is now exported, not all available values.

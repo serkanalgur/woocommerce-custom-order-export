@@ -2,12 +2,26 @@
 
 All notable changes to the WooCommerce Order Export Pro plugin will be documented in this file.
 
-## [1.7.1] - 2025-12-01
+## [1.7.2] - 2026-03-06
+
+### Changed
+- **Core Architecture**: Moved `WExport` class to `includes/class-wexport.php` to decuople bootstrap initialization from core class logic.
+- **Autoloading**: Updated autoloader logic to automatically find and load namespaced main plugin class.
 
 ### Fixed
-- **Template System**: `remove_variation_from_product_name` checkbox value is now correctly saved in template config and loaded when templates are restored. Previously, this setting was only saved globally but not included in individual template configurations.
+- **WP Coding Standards**: Resolved multiple issues including inline comment punctuation, Yoda conditions, and missing docblock @throws tags across [admin/class-admin-page.php](admin/class-admin-page.php) and [includes/class-export-manager.php](includes/class-export-manager.php).
+- **Security**: Hardened form submission logic by adding nonce checks and sanitizing `$_POST` input in `admin-page.php`.
+- **File System**: Refined export directory creation and permission checks using the `WP_Filesystem` API.
+- **Performance**: Optimized the preview generation system by processing small datasets directly in memory instead of writing to/reading from temporary files.
 
 ### Files Modified
+- [woocommerce-custom-order-export.php](woocommerce-custom-order-export.php) (bootstrap and autoloader updates)
+- [includes/class-wexport.php](includes/class-wexport.php) (new core class location)
+- [admin/admin-page.php](admin-page.php) (security and sanitation)
+- [admin/class-admin-page.php](class-admin-page.php) (refactored preview and styling)
+- [includes/class-export-manager.php](includes/class-export-manager.php) (security and code standards)
+
+## [1.7.1] - 2025-12-01
 - `includes/class-template-ajax-handler.php` - Template config now includes `remove_variation_from_product_name`
 - `admin/js/template-manager.js` - Form data collection and template loading now handles `remove_variation_from_product_name`
 
