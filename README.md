@@ -18,6 +18,12 @@ A production-ready WordPress plugin for exporting WooCommerce orders to CSV/XLSX
 
 ## Changelog
 
+### 1.8.1 (2026-03-08)
+- **Fixed**: Preview/export mismatch where preview displayed data but export returned empty file
+- **Fixed**: Date filter inconsistency between preview and export functions  
+- **Fixed**: Unreachable code in AJAX handler preventing option persistence
+- **Changed**: Preview now applies same date filters as export for consistent results
+
 ### 1.8.0 (2026-03-08)
 - **Added**: Line Item Metadata Mapping feature to export custom metadata from Product Input Fields products
 - **Added**: Support for nested JSON query paths in metadata extraction

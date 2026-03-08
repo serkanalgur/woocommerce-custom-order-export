@@ -6,13 +6,26 @@ Plugin URI: https://github.com/serkanalgur/woocommerce-custom-order-export
 Tags: woocommerce, export, csv, xlsx, orders, custom codes, metadata
 Requires at least: 6.0
 Requires PHP: 7.4
-Tested up to: 6.4
+Tested up to: 6.9
 Requires Plugins: woocommerce
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Export WooCommerce orders to CSV/XLSX with product-level custom codes and metadata.
+
+== Changelog ==
+
+= 1.8.1 =
+* Fixed: Preview/export mismatch where preview displayed data but export returned empty file
+* Fixed: Date filter inconsistency between preview and export functions
+* Fixed: Unreachable code in AJAX handler preventing option persistence
+* Changed: Preview now applies same date filters as export for consistent results
+
+= 1.8.0 =
+* Added: Line item metadata mapping feature for Product Input Fields plugin support
+* Added: Support for nested JSON query paths in metadata extraction
+* Changed: Enhanced export configuration and admin UI with improved messaging
 
 == Description ==
 
