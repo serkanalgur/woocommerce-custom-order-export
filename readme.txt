@@ -3,12 +3,12 @@ Contributors: kaisercrazy
 Author: Serkan Algur
 Author URI: https://github.com/serkanalgur
 Plugin URI: https://github.com/serkanalgur/woocommerce-custom-order-export
-Tags: woocommerce, export, csv, xlsx, orders, custom codes
+Tags: woocommerce, export, csv, xlsx, orders, custom codes, metadata
 Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 6.4
 Requires Plugins: woocommerce
-Stable tag: 1.7.3
+Stable tag: 1.8.0
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,6 +35,16 @@ WooCommerce Order Export Pro is a powerful, production-ready plugin that allows 
 - WordPress 6.0+
 - WooCommerce 6.0+
 - PHP 7.4+
+
+= Supported Plugins =
+
+This plugin integrates with and supports the following plugins:
+
+== Product Input Fields for WooCommerce ==
+* **Plugin**: [Product Input Fields for WooCommerce](https://wordpress.org/plugins/product-input-fields-for-woocommerce/)
+* **Feature**: Line Item Metadata Mapping
+* **Description**: Export custom product input field metadata to your CSV/XLSX exports
+* **Status**: Optional (feature is only available when this plugin is installed and activated)
 
 == Installation ==
 
@@ -101,6 +111,14 @@ Map custom product information to your export:
 
 == Changelog ==
 
+= 1.8.0 =
+* Add: Line Item Metadata Mapping feature to export Product Input Fields metadata.
+* Add: Support for nested JSON query paths in metadata extraction.
+* Add: Conditional UI that shows/hides metadata feature based on plugin installation.
+* Add: Unit tests for metadata configuration and export functionality.
+* Fix: Enhanced AJAX and form handlers with plugin presence verification.
+* Contributors: BrianHenryIE for initial metadata feature implementation.
+
 = 1.7.3 =
 * Fix: spl_autoload_register was missing after refactoring.
 * Fix: Autoloader path mapping for Admin namespace.
@@ -160,6 +178,20 @@ No limit! The plugin uses streaming output to handle large exports efficiently.
 Not yet, but you can use the programmatic API or hooks to schedule exports via WordPress cron.
 
 == Changelog ==
+
+= 1.8.0 =
+
+== Added ==
+- Line Item Metadata Mapping feature to export Product Input Fields metadata
+- Support for nested JSON query paths in metadata extraction
+- Conditional UI that shows/hides metadata feature based on plugin installation
+- Unit tests for metadata configuration and export functionality
+
+== Fixed ==
+- Enhanced AJAX and form handlers with plugin presence verification
+
+== Contributors ==
+- BrianHenryIE for initial metadata feature implementation
 
 = 1.7.3 =
 

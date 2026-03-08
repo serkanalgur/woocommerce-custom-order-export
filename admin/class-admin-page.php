@@ -573,6 +573,25 @@ class Admin_Page {
 			}
 		}
 
+		// Build line item metadata mappings.
+		$line_item_metadata_mappings = array();
+		// Only process metadata mappings if Product Input Fields plugin is active
+		if ( class_exists( 'Alg_WC_PIF' ) && isset( $_POST['line_item_metadata'] ) && is_array( $_POST['line_item_metadata'] ) ) {
+			$line_item_metadata = wp_unslash( (array) $_POST['line_item_metadata'] );
+			foreach ( $line_item_metadata as $mapping ) {
+				if ( is_array( $mapping ) ) {
+					$mapping = array_map( 'sanitize_text_field', $mapping );
+					if ( ! empty( $mapping['column_name'] ) && ! empty( $mapping['meta_key'] ) ) {
+						$line_item_metadata_mappings[] = array(
+							'meta_key'    => $mapping['meta_key'],
+							'json_query'  => $mapping['json_query'] ?? '.value',
+							'column_name' => $mapping['column_name'],
+						);
+					}
+				}
+			}
+		}
+
 		return array(
 			'format'                             => isset( $_POST['export_format'] ) ? sanitize_text_field( $_POST['export_format'] ) : 'csv',
 			'delimiter'                          => isset( $_POST['delimiter'] ) ? sanitize_text_field( $_POST['delimiter'] ) : ',',
@@ -582,6 +601,7 @@ class Admin_Page {
 			'order_status'                       => $statuses,
 			'columns'                            => $columns,
 			'custom_code_mappings'               => $code_mappings,
+			'line_item_metadata_mappings'        => $line_item_metadata_mappings,
 			'multi_term_separator'               => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( $_POST['multi_term_separator'] ) : '|',
 			'include_headers'                    => isset( $_POST['include_headers'] ) ? true : false,
 			'remove_variation_from_product_name' => isset( $_POST['remove_variation_from_product_name'] ) ? true : false,
@@ -597,6 +617,9 @@ class Admin_Page {
 	private static function persist_export_settings( $config ) {
 		if ( isset( $config['remove_variation_from_product_name'] ) ) {
 			update_option( 'wexport_remove_variation_from_product_name', (bool) $config['remove_variation_from_product_name'] );
+		}
+		if ( isset( $config['line_item_metadata_mappings'] ) ) {
+			update_option( 'wexport_line_item_metadata', $config['line_item_metadata_mappings'] );
 		}
 	}
 
@@ -757,6 +780,7 @@ class Admin_Page {
 			'include_headers'                    => get_option( 'wexport_include_headers', true ),
 			'column_mappings'                    => get_option( 'wexport_column_mappings', array() ),
 			'custom_codes'                       => get_option( 'wexport_custom_codes', array() ),
+			'line_item_metadata'                 => get_option( 'wexport_line_item_metadata', array() ),
 			'remove_variation_from_product_name' => get_option( 'wexport_remove_variation_from_product_name', false ),
 		);
 	}

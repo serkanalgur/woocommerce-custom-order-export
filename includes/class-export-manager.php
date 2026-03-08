@@ -55,6 +55,13 @@ class Export_Manager {
 	private $headers = array();
 
 	/**
+	 * Metadata headers can be variable based on the meta value, and can contain duplicates.
+	 *
+	 * @var string[]
+	 */
+	private $metadata_headers = array();
+
+	/**
 	 * Constructor.
 	 *
 	 * @param array $config Export configuration.
@@ -82,6 +89,7 @@ class Export_Manager {
 			'order_status'                       => array( 'wc-completed' ),
 			'columns'                            => array(),
 			'custom_code_mappings'               => array(),
+			'line_item_metadata_mappings'        => array(),
 			'multi_term_separator'               => '|',
 			'include_headers'                    => true,
 			'remove_variation_from_product_name' => false,
@@ -190,11 +198,15 @@ class Export_Manager {
 	 * @throws \Exception If the file cannot be written.
 	 */
 	private function export_xlsx( $file_path ) {
-		// Collect headers.
+		// Collect headers (initial set - metadata headers will be added during processing).
 		$this->headers = array_merge(
 			$this->get_order_columns(),
 			$this->get_item_columns(),
-			array_keys( $this->config['custom_code_mappings'] ?? array() )
+			array_keys( $this->config['custom_code_mappings'] ?? array() ),
+			array_map(
+				fn( $mapping ) => $mapping['column_name'],
+				$this->config['line_item_metadata_mappings']
+			)
 		);
 
 		// Initialize rows buffer.
@@ -203,12 +215,30 @@ class Export_Manager {
 		// Fetch and process orders.
 		$rows_exported = $this->process_orders();
 
+		// Map rows with final header list (including dynamic metadata headers).
+		$final_headers = array_merge(
+			$this->get_order_columns(),
+			$this->get_item_columns(),
+			array_keys( $this->config['custom_code_mappings'] ?? array() ),
+			$this->metadata_headers
+		);
+
+		// Rebuild rows with final headers.
+		$final_rows = array();
+		foreach ( $this->rows_buffer as $row ) {
+			$final_row = array();
+			foreach ( $final_headers as $header ) {
+				$final_row[] = $row[ $header ] ?? '';
+			}
+			$final_rows[] = $final_row;
+		}
+
 		// Write XLSX file.
 		if ( $rows_exported > 0 ) {
-			if ( ! Xlsx_Exporter::export( $file_path, $this->headers, $this->rows_buffer ) ) {
+			if ( ! Xlsx_Exporter::export( $file_path, $final_headers, $final_rows ) ) {
 				throw new \Exception( esc_html__( 'Could not write XLSX file.', 'wexport' ) );
 			}
-		} elseif ( ! Xlsx_Exporter::export( $file_path, $this->headers, array() ) ) {
+		} elseif ( ! Xlsx_Exporter::export( $file_path, $final_headers, array() ) ) {
 			// Create empty XLSX with just headers.
 			throw new \Exception( esc_html__( 'Could not write XLSX file.', 'wexport' ) );
 		}
@@ -319,7 +349,8 @@ class Export_Manager {
 		$order_data   = $this->formatter->format_order_data( $order, $this->get_order_columns() );
 
 		// Get custom code mappings.
-		$code_mappings = apply_filters( 'wexport_custom_code_mappings', $this->config['custom_code_mappings'] );
+		$code_mappings               = apply_filters( 'wexport_custom_code_mappings', $this->config['custom_code_mappings'] );
+		$line_item_metadata_mappings = apply_filters( 'wexport_line_item_metadata_mappings', $this->config['line_item_metadata_mappings'] );
 
 		if ( 'line_item' === $this->config['export_mode'] ) {
 			// One row per line item.
@@ -343,6 +374,16 @@ class Export_Manager {
 							$this->get_product_custom_codes(
 								$product->get_id(),
 								$code_mappings
+							)
+						);
+					}
+
+					if ( $line_item_metadata_mappings ) {
+						$row = array_merge(
+							$row,
+							$this->get_line_item_metadata(
+								$item,
+								$line_item_metadata_mappings
 							)
 						);
 					}
@@ -489,6 +530,129 @@ class Export_Manager {
 	}
 
 	/**
+	 * Get line item metadata from order item.
+	 *
+	 * @param \WC_Order_Item $line_item Line item.
+	 * @param array          $mappings Metadata mappings configuration.
+	 * @return array Line item metadata columns.
+	 */
+	private function get_line_item_metadata( $line_item, $mappings ) {
+		$csv_meta = array();
+
+		/**
+		 * For this individual line-item, ensure unique column names.
+		 *
+		 * @var array<string, int>
+		 */
+		$duplicate_column_names = array();
+
+		foreach ( $mappings as $mapping ) {
+
+			/** @var \WC_Meta_Data[] $wc_meta_values */
+			$wc_meta_values = $line_item->get_meta( $mapping['meta_key'], false );
+
+			foreach ( $wc_meta_values as $wc_meta_value ) {
+
+				$meta_data = $wc_meta_value->get_data();
+
+				$meta_data_value = is_array( $meta_data['value'] ) ? $meta_data['value'] : json_decode( $meta_data['value'], true );
+
+				if ( empty( $meta_data_value ) ) {
+
+					$column_name = empty( $mapping['column_name'] )
+						? $meta_data['key']
+						: $mapping['column_name'];
+
+					$csv_meta[ $column_name ] = $meta_data['value'];
+
+					// Store the column name globally for later.
+					if ( ! in_array( $column_name, $this->metadata_headers, true ) ) {
+						$this->metadata_headers[] = $column_name;
+					}
+
+					continue;
+				}
+
+				// I.e. if it is a string etc.
+				if ( ! is_array( $meta_data_value ) ) {
+
+					$column_name = empty( $mapping['column_name'] )
+						? $meta_data['key']
+						: $mapping['column_name'];
+
+					$csv_meta[ $column_name ] = $meta_data_value;
+
+					// Store the column name globally for later.
+					if ( ! in_array( $column_name, $this->metadata_headers, true ) ) {
+						$this->metadata_headers[] = $column_name;
+					}
+
+					continue;
+				}
+
+				// Split the string by `.` to an array, remove empty entries.
+				$path_parts = array_values(
+					array_filter(
+						explode( '.', $mapping['json_query'] ),
+						function ( $value ) {
+							return $value !== ''; }
+					)
+				);
+				if ( 'value' === $path_parts[0] && ! isset( $meta_data_value['value'] ) ) {
+					unset( $path_parts[0] );
+				}
+
+				$value_part = $meta_data_value;
+				foreach ( $path_parts as $part ) {
+					$value_part = $value_part[ $part ] ?? null;
+				}
+
+				$column_name = $mapping['column_name'];
+				// If the column name begins with `.`, use it as a json query.
+				if ( 0 === strpos( $column_name, '.' ) ) {
+					$column_name_path_parts = array_values(
+						array_filter(
+							explode( '.', $column_name ),
+							function ( $value ) {
+								return $value !== ''; }
+						)
+					);
+					if ( 'value' === $column_name_path_parts[0] && ! isset( $meta_data_value['value'] ) ) {
+						unset( $column_name_path_parts[0] );
+					}
+					$name_part = $meta_data_value;
+					foreach ( $column_name_path_parts as $column_name_path_part ) {
+						$name_part = $name_part[ $column_name_path_part ] ?? null;
+					}
+					$column_name = $name_part;
+				}
+
+				if ( is_null( $column_name ) ) {
+					$column_name = $mapping['meta_key'] . ' : ' . $mapping['column_name'];
+				}
+
+				if ( isset( $csv_meta[ $column_name ] ) ) {
+					if ( ! isset( $duplicate_column_names[ $column_name ] ) ) {
+						$duplicate_column_names[ $column_name ] = 2;
+					} else {
+						++$duplicate_column_names[ $column_name ];
+					}
+					$column_name = $column_name . '.' . $duplicate_column_names[ $column_name ];
+				}
+
+				$csv_meta[ $column_name ] = is_array( $value_part ) ? json_encode( $value_part ) : $value_part;
+
+				// Store the column name globally for later.
+				if ( ! in_array( $column_name, $this->metadata_headers, true ) ) {
+					$this->metadata_headers[] = $column_name;
+				}
+			}
+		}
+
+		return $csv_meta;
+	}
+
+	/**
 	 * Merge multiple items into single row.
 	 *
 	 * @param array  $items Array of item data arrays.
@@ -529,7 +693,11 @@ class Export_Manager {
 		$columns = array_merge(
 			$this->get_order_columns(),
 			$this->get_item_columns(),
-			array_keys( $this->config['custom_code_mappings'] ?? array() )
+			array_keys( $this->config['custom_code_mappings'] ?? array() ),
+			array_map(
+				fn( $mapping ) => $mapping['column_name'],
+				$this->config['line_item_metadata_mappings']
+			)
 		);
 
 		$header_row = $this->formatter->format_headers( $columns );
@@ -551,7 +719,8 @@ class Export_Manager {
 		$columns = array_merge(
 			$this->get_order_columns(),
 			$this->get_item_columns(),
-			array_keys( $this->config['custom_code_mappings'] ?? array() )
+			array_keys( $this->config['custom_code_mappings'] ?? array() ),
+			$this->metadata_headers,
 		);
 
 		// Ensure all columns exist in row.

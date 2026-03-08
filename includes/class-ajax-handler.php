@@ -206,6 +206,43 @@ class Ajax_Handler {
 			error_log( 'WExport: Final code_mappings: ' . wp_json_encode( $code_mappings ) );
 		}
 
+		// Build line item metadata mappings.
+		$line_item_metadata_mappings = array();
+		// Only process metadata mappings if Product Input Fields plugin is active
+		if ( class_exists( 'Alg_WC_PIF' ) && isset( $_POST['line_item_metadata'] ) && is_array( $_POST['line_item_metadata'] ) ) {
+			$line_item_metadata = wp_unslash( (array) $_POST['line_item_metadata'] );
+
+			// Debug logging
+			error_log( 'WExport: Received line_item_metadata count: ' . count( $line_item_metadata ) );
+			error_log( 'WExport: Received line_item_metadata: ' . wp_json_encode( $line_item_metadata ) );
+
+			foreach ( $line_item_metadata as $idx => $mapping ) {
+				error_log( "WExport: Processing mapping index $idx, is_array: " . ( is_array( $mapping ) ? 'yes' : 'no' ) );
+
+				if ( is_array( $mapping ) ) {
+					$mapping = array_map( 'sanitize_text_field', $mapping );
+
+					// Debug each mapping
+					error_log( 'WExport: After sanitize - ' . wp_json_encode( $mapping ) );
+
+					if ( ! empty( $mapping['column_name'] ) && ! empty( $mapping['meta_key'] ) ) {
+						$line_item_metadata_mappings[] = array(
+							'meta_key'    => $mapping['meta_key'],
+							'json_query'  => $mapping['json_query'] ?? '.value',
+							'column_name' => $mapping['column_name'],
+						);
+						error_log( 'WExport: ✓ Added mapping - Meta Key: ' . $mapping['meta_key'] . ', Json Query: ' . $mapping['json_query'] . ', Column: ' . $mapping['column_name'] );
+					} else {
+						error_log( 'WExport: ✗ Mapping rejected - Missing required fields. Column: "' . ( $mapping['column_name'] ?? '' ) . '", Meta Key: "' . ( $mapping['meta_key'] ?? '' ) . '"' );
+					}
+				}
+			}
+
+			// Debug final mappings
+			error_log( 'WExport: Final line_item_metadata_mappings count: ' . count( $line_item_metadata_mappings ) );
+			error_log( 'WExport: Final line_item_metadata_mappings: ' . wp_json_encode( $line_item_metadata_mappings ) );
+		}
+
 		return array(
 			'format'                             => isset( $_POST['export_format'] ) ? sanitize_text_field( wp_unslash( $_POST['export_format'] ) ) : 'csv',
 			'delimiter'                          => isset( $_POST['delimiter'] ) ? sanitize_text_field( wp_unslash( $_POST['delimiter'] ) ) : ',',
@@ -215,6 +252,7 @@ class Ajax_Handler {
 			'order_status'                       => $statuses,
 			'columns'                            => $columns,
 			'custom_code_mappings'               => $code_mappings,
+			'line_item_metadata_mappings'        => $line_item_metadata_mappings,
 			'multi_term_separator'               => isset( $_POST['multi_term_separator'] ) ? sanitize_text_field( wp_unslash( $_POST['multi_term_separator'] ) ) : '|',
 			'include_headers'                    => isset( $_POST['include_headers'] ) ? true : false,
 			'remove_variation_from_product_name' => isset( $_POST['remove_variation_from_product_name'] ) ? true : false,
