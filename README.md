@@ -16,32 +16,6 @@ A production-ready WordPress plugin for exporting WooCommerce orders to CSV/XLSX
 - **Extensible**: Hooks and filters for custom development
 - **Security**: Proper nonces, capability checks, and sanitization
 
-## Changelog
-
-### 1.8.1 (2026-03-08)
-- **Fixed**: Preview/export mismatch where preview displayed data but export returned empty file
-- **Fixed**: Date filter inconsistency between preview and export functions  
-- **Fixed**: Unreachable code in AJAX handler preventing option persistence
-- **Changed**: Preview now applies same date filters as export for consistent results
-
-### 1.8.0 (2026-03-08)
-- **Added**: Line Item Metadata Mapping feature to export custom metadata from Product Input Fields products
-- **Added**: Support for nested JSON query paths in metadata extraction
-- **Added**: Conditional UI that shows/hides metadata feature based on plugin installation
-- **Added**: Unit tests for metadata configuration and export functionality
-- **Fixed**: Enhanced AJAX and form handlers with plugin presence verification
-- **Contributors**: [@BrianHenryIE](https://github.com/BrianHenryIE) for initial metadata feature implementation
-
-### 1.7.3 (2026-03-06)
-- **Fix**: Re-registered autoloader via `spl_autoload_register` which was lost after `WExport` class refactor.
-- **Fix**: Corrected autoloader directory mapping for `WExport\Admin` namespace to fix admin area disappearance.
-
-### 1.7.2 (2026-03-06)
-- **Changed**: Decoupled bootstrap initialization by moving `WExport` class to `includes/class-wexport.php`.
-- **Fixed**: Multiple WordPress Coding Standards issues.
-- **Improved**: Hardened security with better nonce validation and input sanitization.
-- **Optimized**: Preview generation for small datasets is now faster.
-
 ## Requirements
 
 - WordPress 6.0+
@@ -550,10 +524,29 @@ Special thanks to:
 
 ## Changelog
 
-### 1.7.2 - 2026-03-06
+### 1.8.1 (2026-03-08)
+- **Fixed**: Preview/export mismatch where preview displayed data but export returned empty file
+- **Fixed**: Date filter inconsistency between preview and export functions  
+- **Fixed**: Unreachable code in AJAX handler preventing option persistence
+- **Changed**: Preview now applies same date filters as export for consistent results
 
-**Fixed**
-- Admin page fix
+### 1.8.0 (2026-03-08)
+- **Added**: Line Item Metadata Mapping feature to export custom metadata from Product Input Fields products
+- **Added**: Support for nested JSON query paths in metadata extraction
+- **Added**: Conditional UI that shows/hides metadata feature based on plugin installation
+- **Added**: Unit tests for metadata configuration and export functionality
+- **Fixed**: Enhanced AJAX and form handlers with plugin presence verification
+- **Contributors**: [@BrianHenryIE](https://github.com/BrianHenryIE) for initial metadata feature implementation
+
+### 1.7.3 (2026-03-06)
+- **Fix**: Re-registered autoloader via `spl_autoload_register` which was lost after `WExport` class refactor.
+- **Fix**: Corrected autoloader directory mapping for `WExport\Admin` namespace to fix admin area disappearance.
+
+### 1.7.2 (2026-03-06)
+- **Changed**: Decoupled bootstrap initialization by moving `WExport` class to `includes/class-wexport.php`.
+- **Fixed**: Multiple WordPress Coding Standards issues.
+- **Improved**: Hardened security with better nonce validation and input sanitization.
+- **Optimized**: Preview generation for small datasets is now faster.
 
 ### 1.7.2 - 2026-03-06
 

@@ -2,6 +2,16 @@
 
 All notable changes to the WooCommerce Order Export Pro plugin will be documented in this file.
 
+## [1.8.1] - 2026-03-08
+
+### Fixed
+- **Preview/Export Mismatch**: Fixed issue where preview displayed data but export returned empty file due to date filter inconsistency. Preview now applies the same date filters as the actual export.
+- **AJAX Handler Bug**: Fixed unreachable code that prevented option persistence in the export configuration.
+- **Date Filter Logic**: Ensured preview and export use identical order query logic for consistent results.
+
+### Changed
+- Preview now uses the same date filtering mechanism as the export function for consistent data representation.
+
 ## [1.8.0] - 2026-03-08
 
 ### Added

@@ -700,16 +700,52 @@ class Admin_Page {
 				fwrite( $file_handle, $header_row );
 			}
 
-			// Get a small batch of orders (5 rows).
-			$orders = wc_get_orders(
-				array(
-					'limit'   => 5,
-					'offset'  => 0,
-					'status'  => $config['order_status'],
-					'orderby' => 'date',
-					'order'   => 'DESC',
-				)
+			// Get a small batch of orders (5 rows) with same filters as export.
+			$args = array(
+				'limit'   => 5,
+				'offset'  => 0,
+				'status'  => $config['order_status'],
+				'orderby' => 'date',
+				'order'   => 'DESC',
 			);
+
+			// Add date filters if provided (same logic as Export_Manager).
+			if ( ! empty( $config['date_from'] ) ) {
+				$args['date_created'] = '>=' . $config['date_from'] . ' 00:00:00';
+			}
+
+			if ( ! empty( $config['date_to'] ) ) {
+				$date_to_condition = '<=' . $config['date_to'] . ' 23:59:59';
+				if ( ! empty( $config['date_from'] ) ) {
+					// Both dates provided - use custom filtering after retrieval.
+					$args['_wexport_date_from'] = $config['date_from'] . ' 00:00:00';
+					$args['_wexport_date_to']   = $config['date_to'] . ' 23:59:59';
+				} else {
+					// Only date_to provided.
+					$args['date_created'] = $date_to_condition;
+				}
+			}
+
+			// Extract custom date filters before passing to wc_get_orders.
+			$date_from = isset( $args['_wexport_date_from'] ) ? $args['_wexport_date_from'] : null;
+			$date_to   = isset( $args['_wexport_date_to'] ) ? $args['_wexport_date_to'] : null;
+			unset( $args['_wexport_date_from'], $args['_wexport_date_to'] );
+
+			$orders = wc_get_orders( $args );
+
+			// Post-filter orders if both date_from and date_to are provided.
+			if ( $date_from && $date_to ) {
+				$date_from_ts = strtotime( $date_from );
+				$date_to_ts   = strtotime( $date_to );
+
+				$orders = array_filter(
+					$orders,
+					function ( $order ) use ( $date_from_ts, $date_to_ts ) {
+						$order_ts = $order->get_date_created()->getTimestamp();
+						return $order_ts >= $date_from_ts && $order_ts <= $date_to_ts;
+					}
+				);
+			}
 
 			if ( empty( $orders ) ) {
 				fclose( $file_handle );

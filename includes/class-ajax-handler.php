@@ -243,7 +243,7 @@ class Ajax_Handler {
 			error_log( 'WExport: Final line_item_metadata_mappings: ' . wp_json_encode( $line_item_metadata_mappings ) );
 		}
 
-		return array(
+		$config = array(
 			'format'                             => isset( $_POST['export_format'] ) ? sanitize_text_field( wp_unslash( $_POST['export_format'] ) ) : 'csv',
 			'delimiter'                          => isset( $_POST['delimiter'] ) ? sanitize_text_field( wp_unslash( $_POST['delimiter'] ) ) : ',',
 			'export_mode'                        => isset( $_POST['export_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['export_mode'] ) ) : 'line_item',
@@ -258,10 +258,13 @@ class Ajax_Handler {
 			'remove_variation_from_product_name' => isset( $_POST['remove_variation_from_product_name'] ) ? true : false,
 			'batch_size'                         => 100,
 		);
-		// Persist setting for AJAX flows
+
+		// Persist setting for AJAX flows.
 		if ( isset( $config['remove_variation_from_product_name'] ) ) {
 			update_option( 'wexport_remove_variation_from_product_name', (bool) $config['remove_variation_from_product_name'] );
 		}
+
+		return $config;
 	}
 
 	/**

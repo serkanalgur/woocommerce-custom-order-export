@@ -511,9 +511,6 @@ $default_date_to   = gmdate( 'Y-m-d' );
 				<div class="wexport-section" style="border: 1px solid #ddd; background-color: #f9f9f9; padding: 20px;">
 					<h3 style="color: #666; margin-top: 0;">
 						<?php esc_html_e( 'Line Item Metadata Mapping', 'wexport' ); ?>
-						<span style="background-color: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 3px; font-size: 12px; margin-left: 10px;">
-							<?php esc_html_e( 'Premium Feature', 'wexport' ); ?>
-						</span>
 					</h3>
 					<p style="color: #666;">
 						<?php

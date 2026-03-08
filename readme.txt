@@ -14,19 +14,6 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Export WooCommerce orders to CSV/XLSX with product-level custom codes and metadata.
 
-== Changelog ==
-
-= 1.8.1 =
-* Fixed: Preview/export mismatch where preview displayed data but export returned empty file
-* Fixed: Date filter inconsistency between preview and export functions
-* Fixed: Unreachable code in AJAX handler preventing option persistence
-* Changed: Preview now applies same date filters as export for consistent results
-
-= 1.8.0 =
-* Added: Line item metadata mapping feature for Product Input Fields plugin support
-* Added: Support for nested JSON query paths in metadata extraction
-* Changed: Enhanced export configuration and admin UI with improved messaging
-
 == Description ==
 
 WooCommerce Order Export Pro is a powerful, production-ready plugin that allows you to export WooCommerce orders to CSV or XLSX format with complete support for product-level custom codes and metadata.
@@ -123,6 +110,12 @@ Map custom product information to your export:
 - order_date
 
 == Changelog ==
+
+= 1.8.1 =
+* Fixed: Preview/export mismatch where preview displayed data but export returned empty file
+* Fixed: Date filter inconsistency between preview and export functions
+* Fixed: Unreachable code in AJAX handler preventing option persistence
+* Changed: Preview now applies same date filters as export for consistent results
 
 = 1.8.0 =
 * Add: Line Item Metadata Mapping feature to export Product Input Fields metadata.
