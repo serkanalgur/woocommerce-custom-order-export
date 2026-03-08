@@ -437,6 +437,99 @@ $default_date_to   = gmdate( 'Y-m-d' );
 				</button>
 			</div>
 
+			<!-- Line Item Metadata Section - Only show if Product Input Fields plugin is active -->
+			<?php if ( class_exists( 'Alg_WC_PIF' ) ) : ?>
+				<div class="wexport-section">
+					<h2><?php esc_html_e( 'Line Item Metadata Mapping', 'wexport' ); ?></h2>
+					<p class="description">
+						<?php esc_html_e( 'Map line item metadata to export columns.', 'wexport' ); ?>
+					</p>
+					<p class="description">
+						<small><?php esc_html_e( 'Line item metadata is saved in the form array{id:int, key:string, value:mixed, display_key:string, display_value:mixed}. `.value` is typically what you will want.', 'wexport' ); ?></small>
+					</p>
+
+					<table class="wexport-line-item-metadata-table">
+						<thead>
+							<tr>
+								<th><?php esc_html_e( 'Meta Key', 'wexport' ); ?></th>
+								<th><?php esc_html_e( 'Json Query', 'wexport' ); ?></th>
+								<th><?php esc_html_e( 'Column Name', 'wexport' ); ?></th>
+								<th><?php esc_html_e( 'Action', 'wexport' ); ?></th>
+							</tr>
+						</thead>
+						<tbody id="line-item-metadata-tbody">
+							<?php if ( ! empty( $line_item_metadata ) ) : ?>
+								<?php foreach ( $line_item_metadata as $code_type ) : ?>
+									<tr class="line-item-metadata-row">
+										<td>
+											<input
+												type="text"
+												name="line_item_metadata[][meta_key]"
+												value="<?php echo esc_attr( $code_type['meta_key'] ?? '' ); ?>"
+												class="line-item-metadata-meta-key"
+												placeholder="e.g., _metal_type or _product_code"
+												style="display: block;"
+											/>
+										</td>
+										<td>
+											<input
+												type="text"
+												name="line_item_metadata[][json_query]"
+												value="<?php echo esc_attr( $code_type['json_query'] ?? '' ); ?>"
+												class="line-item-metadata-json-query"
+											/>
+										</td>
+										<td>
+											<input
+												type="text"
+												name="line_item_metadata[][column_name]"
+												value="<?php echo esc_attr( $code_type['column_name'] ?? '' ); ?>"
+												class="line-item-metadata-column-name"
+											/>
+										</td>
+										<td>
+											<button type="button" class="button button-small remove-line-item-metadata">
+												<?php esc_html_e( 'Remove', 'wexport' ); ?>
+											</button>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							<?php endif; ?>
+						</tbody>
+					</table>
+
+					<button
+						type="button"
+						id="add-line-item-metadata"
+						class="button button-secondary"
+						style="margin-top: 10px;"
+					>
+						<?php esc_html_e( 'Add Line Item Metadata Mapping', 'wexport' ); ?>
+					</button>
+				</div>
+			<?php else : ?>
+				<div class="wexport-section" style="border: 1px solid #ddd; background-color: #f9f9f9; padding: 20px;">
+					<h3 style="color: #666; margin-top: 0;">
+						<?php esc_html_e( 'Line Item Metadata Mapping', 'wexport' ); ?>
+						<span style="background-color: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 3px; font-size: 12px; margin-left: 10px;">
+							<?php esc_html_e( 'Premium Feature', 'wexport' ); ?>
+						</span>
+					</h3>
+					<p style="color: #666;">
+						<?php
+						printf(
+							/* translators: %s: Product Input Fields for WooCommerce plugin link */
+							esc_html__( 'This feature requires the %s plugin to be installed and activated.', 'wexport' ),
+							'<a href="https://wordpress.org/plugins/product-input-fields-for-woocommerce/" target="_blank" style="color: #0073aa; text-decoration: none;">Product Input Fields for WooCommerce</a>'
+						);
+						?>
+					</p>
+					<p style="color: #999; font-size: 13px; margin-bottom: 0;">
+						<?php esc_html_e( 'Once activated, you\'ll be able to map custom product input fields and metadata from that plugin to your export columns.', 'wexport' ); ?>
+					</p>
+				</div>
+			<?php endif; ?>
+
 			<!-- Action Buttons -->
 			<div class="wexport-actions">
 				<button 

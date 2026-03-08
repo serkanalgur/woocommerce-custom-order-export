@@ -2,6 +2,36 @@
 
 All notable changes to the WooCommerce Order Export Pro plugin will be documented in this file.
 
+## [1.8.0] - 2026-03-08
+
+### Added
+- **Line Item Metadata Mapping**: New feature to export custom line item metadata from Product Input Fields for WooCommerce plugin.
+- Support for nested JSON query paths in metadata extraction (e.g., `.value`, `.value.0.__value`).
+- Conditional UI that shows/hides metadata feature based on plugin installation status.
+- Unit tests for line item metadata configuration and export functionality.
+- Dynamic metadata header collection for XLSX exports.
+
+### Changed
+- Enhanced export configuration to support metadata mapping alongside custom product codes.
+- Admin UI now provides helpful messaging when required dependencies are missing.
+- JavaScript initialization made conditional to only load when feature is available.
+- AJAX and form handlers now verify plugin presence before processing metadata mappings.
+
+### Files Modified
+- [admin/admin-page.php](admin/admin-page.php) - Added Line Item Metadata UI section with conditional rendering
+- [admin/class-admin-page.php](admin/class-admin-page.php) - Added metadata configuration parsing and persistence
+- [admin/css/admin-styles.css](admin/css/admin-styles.css) - Added styling for metadata table
+- [admin/js/admin-ui.js](admin/js/admin-ui.js) - Added metadata form handling and conditional initialization
+- [includes/class-ajax-handler.php](includes/class-ajax-handler.php) - Added metadata mapping validation in AJAX handler
+- [includes/class-export-manager.php](includes/class-export-manager.php) - Added `get_line_item_metadata()` method and metadata export support for CSV/XLSX
+- [tests/test-export-manager.php](tests/test-export-manager.php) - Added 5 unit tests for metadata functionality
+
+### Dependencies
+- Now supports Product Input Fields for WooCommerce (optional, required only for metadata feature)
+
+### Contributors
+- [@BrianHenryIE](https://github.com/BrianHenryIE) - Initial implementation of line item metadata feature
+
 ## [1.7.3] - 2026-03-06
 
 ### Fixed

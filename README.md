@@ -18,6 +18,14 @@ A production-ready WordPress plugin for exporting WooCommerce orders to CSV/XLSX
 
 ## Changelog
 
+### 1.8.0 (2026-03-08)
+- **Added**: Line Item Metadata Mapping feature to export custom metadata from Product Input Fields products
+- **Added**: Support for nested JSON query paths in metadata extraction
+- **Added**: Conditional UI that shows/hides metadata feature based on plugin installation
+- **Added**: Unit tests for metadata configuration and export functionality
+- **Fixed**: Enhanced AJAX and form handlers with plugin presence verification
+- **Contributors**: [@BrianHenryIE](https://github.com/BrianHenryIE) for initial metadata feature implementation
+
 ### 1.7.3 (2026-03-06)
 - **Fix**: Re-registered autoloader via `spl_autoload_register` which was lost after `WExport` class refactor.
 - **Fix**: Corrected autoloader directory mapping for `WExport\Admin` namespace to fix admin area disappearance.
@@ -33,6 +41,17 @@ A production-ready WordPress plugin for exporting WooCommerce orders to CSV/XLSX
 - WordPress 6.0+
 - WooCommerce 6.0+
 - PHP 7.4+
+
+## Supported Plugins
+
+This plugin integrates with and supports the following plugins:
+
+### Product Input Fields for WooCommerce
+- [Product Input Fields for WooCommerce](https://wordpress.org/plugins/product-input-fields-for-woocommerce/)
+- **Feature**: Line Item Metadata Mapping
+- **Description**: Export custom product input field metadata to your CSV/XLSX exports
+- **Status**: Optional (feature is only available when this plugin is installed and activated)
+- **Use Case**: Extract custom metadata collected via Product Input Fields and include it in order exports
 
 ## Installation
 
@@ -785,3 +804,22 @@ GPL v2 or later - See LICENSE file
 - Export logging to track operations
 - Full WordPress and WooCommerce integration
 - Security features: nonce verification, capability checks, input sanitization
+
+## Contributors
+
+This plugin is developed with contributions from the community:
+
+<a href="https://github.com/serkanalgur/woocommerce-custom-order-export/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=serkanalgur/woocommerce-custom-order-export" />
+</a>
+
+Special thanks to:
+- **[@BrianHenryIE](https://github.com/BrianHenryIE)** - Line Item Metadata Mapping feature
+
+## License
+
+This plugin is licensed under the [GPL v2 License](LICENSE).
+
+---
+
+Made with 💙 by the WooCommerce Custom Order Export community

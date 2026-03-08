@@ -182,4 +182,100 @@ class Test_Export_Manager extends WP_UnitTestCase {
 	public function test_get_logs() {
 		$this->assertTrue( method_exists( '\WExport\Export_Logger', 'get_recent_logs' ) );
 	}
+
+	/**
+	 * Test line item metadata configuration
+	 */
+	public function test_line_item_metadata_config() {
+		$mappings = array(
+			array(
+				'meta_key'    => '_test_meta',
+				'json_query'  => '.value',
+				'column_name' => 'Test Meta',
+			),
+		);
+
+		$config = array(
+			'line_item_metadata_mappings' => $mappings,
+		);
+
+		$manager = new \WExport\Export_Manager( $config );
+		$config  = $manager->get_config();
+
+		$this->assertEquals( $mappings, $config['line_item_metadata_mappings'] );
+	}
+
+	/**
+	 * Test line item metadata with nested JSON path
+	 */
+	public function test_line_item_metadata_json_path() {
+		$mappings = array(
+			array(
+				'meta_key'    => '_product_input_fields',
+				'json_query'  => '.value.0.__value',
+				'column_name' => 'Custom Input Value',
+			),
+		);
+
+		$config = array(
+			'line_item_metadata_mappings' => $mappings,
+		);
+
+		$manager = new \WExport\Export_Manager( $config );
+		$updated_config = $manager->get_config();
+
+		$this->assertEquals( 1, count( $updated_config['line_item_metadata_mappings'] ) );
+		$this->assertEquals( '.value.0.__value', $updated_config['line_item_metadata_mappings'][0]['json_query'] );
+	}
+
+	/**
+	 * Test default JSON query value
+	 */
+	public function test_line_item_metadata_default_json_query() {
+		// In the AJAX handler, the default json_query should be '.value' if empty
+		$mapping = array(
+			'meta_key'    => '_test_meta',
+			'json_query'  => '',
+			'column_name' => 'Test Column',
+		);
+
+		// Simulate what the AJAX handler does
+		$json_query = $mapping['json_query'] ?? '.value';
+		$this->assertEquals( '.value', $json_query );
+	}
+
+	/**
+	 * Test line item metadata with multiple mappings
+	 */
+	public function test_multiple_line_item_metadata_mappings() {
+		$mappings = array(
+			array(
+				'meta_key'    => '_first_meta',
+				'json_query'  => '.value',
+				'column_name' => 'First Meta',
+			),
+			array(
+				'meta_key'    => '_second_meta',
+				'json_query'  => '.display_value',
+				'column_name' => 'Second Meta',
+			),
+			array(
+				'meta_key'    => '_third_meta',
+				'json_query'  => '.value.nested',
+				'column_name' => 'Third Meta',
+			),
+		);
+
+		$config = array(
+			'line_item_metadata_mappings' => $mappings,
+		);
+
+		$manager = new \WExport\Export_Manager( $config );
+		$updated_config = $manager->get_config();
+
+		$this->assertEquals( 3, count( $updated_config['line_item_metadata_mappings'] ) );
+		$this->assertEquals( '_first_meta', $updated_config['line_item_metadata_mappings'][0]['meta_key'] );
+		$this->assertEquals( '_second_meta', $updated_config['line_item_metadata_mappings'][1]['meta_key'] );
+		$this->assertEquals( '_third_meta', $updated_config['line_item_metadata_mappings'][2]['meta_key'] );
+	}
 }

@@ -2,14 +2,18 @@
  * WExport Admin UI JavaScript
  */
 
-(function($) {
+(function ($) {
 	'use strict';
 
 	/**
 	 * Initialize admin UI
 	 */
-	$(function() {
+	$(function () {
 		initCustomCodes();
+		// Only initialize line item metadata if Product Input Fields plugin is active
+		if ($('#line-item-metadata-tbody').length) {
+			initLineItemMetadata();
+		}
 		initFormValidation();
 		initAjaxHandlers();
 		initPreviewModal();
@@ -24,7 +28,7 @@
 		var tableBody = $('#custom-codes-tbody');
 
 		// Add custom code row
-		$(document).on('click', '#add-custom-code', function(e) {
+		$(document).on('click', '#add-custom-code', function (e) {
 			e.preventDefault();
 			var newRow = getCustomCodeRow();
 			tableBody.append(newRow);
@@ -32,13 +36,13 @@
 		});
 
 		// Remove custom code row
-		$(document).on('click', '.remove-code', function(e) {
+		$(document).on('click', '.remove-code', function (e) {
 			e.preventDefault();
 			$(this).closest('tr').remove();
 		});
 
 		// Toggle between text input and select based on type
-		$(document).on('change', '.custom-code-type', function() {
+		$(document).on('change', '.custom-code-type', function () {
 			var type = $(this).val();
 			var row = $(this).closest('tr');
 			var textInput = row.find('.custom-code-source-text');
@@ -61,7 +65,7 @@
 		});
 
 		// Initialize display state for existing rows on page load
-		$('.custom-code-row').each(function() {
+		$('.custom-code-row').each(function () {
 			var type = $(this).find('.custom-code-type').val();
 			var textInput = $(this).find('.custom-code-source-text');
 			var selectInput = $(this).find('.custom-code-source-select');
@@ -77,23 +81,44 @@
 	}
 
 	/**
+	 * Initialize line item metadata functionality
+	 */
+	function initLineItemMetadata() {
+		var tableBody = $('#line-item-metadata-tbody');
+
+		// Add line item metadata row
+		$(document).on('click', '#add-line-item-metadata', function (e) {
+			e.preventDefault();
+			var newRow = getLineItemMetadataRow();
+			tableBody.append(newRow);
+			console.log('New line item metadata row added');
+		});
+
+		// Remove line item metadata row
+		$(document).on('click', '.remove-line-item-metadata', function (e) {
+			e.preventDefault();
+			$(this).closest('tr').remove();
+		});
+	}
+
+	/**
 	 * Get taxonomy select HTML options from page data
 	 */
 	function getTaxonomySelectHTML() {
 		var html = '<option value="">-- Select Taxonomy --</option>';
-		
+
 		// Try to get taxonomies from page data
-		if ( typeof wexportTaxonomies !== 'undefined' && wexportTaxonomies ) {
-			Object.keys( wexportTaxonomies ).forEach( function( taxName ) {
+		if (typeof wexportTaxonomies !== 'undefined' && wexportTaxonomies) {
+			Object.keys(wexportTaxonomies).forEach(function (taxName) {
 				html += '<option value="' + taxName + '">' + wexportTaxonomies[taxName] + ' (' + taxName + ')</option>';
 			});
 		} else {
 			// Fallback if taxonomies not loaded
-			console.warn( 'wexportTaxonomies not available', wexportTaxonomies );
+			console.warn('wexportTaxonomies not available', wexportTaxonomies);
 		}
-		
-		console.log( 'getTaxonomySelectHTML returning:', html );
-		
+
+		console.log('getTaxonomySelectHTML returning:', html);
+
 		return html;
 	}
 
@@ -144,6 +169,46 @@
 	}
 
 	/**
+	 * Get HTML for a new line item metadata row
+	 */
+	function getLineItemMetadataRow() {
+		return `
+			<tr class="line-item-metadata-row">
+				<td>
+					<input 
+						type="text" 
+						name="line_item_metadata[][meta_key]" 
+						class="line-item-metadata-meta-key"
+						placeholder="e.g., _metal_type or _product_code"
+						style="display: block;"
+					/>
+				</td>
+				<td>
+					<input 
+						type="text" 
+						name="line_item_metadata[][json_query]" 
+						class="line-item-metadata-json-query"
+						placeholder="e.g. .value"
+					/>
+				</td>
+				<td>
+					<input 
+						type="text" 
+						name="line_item_metadata[][column_name]" 
+						class="line-item-metadata-column-name"
+						placeholder="e.g., product_code"
+					/>
+				</td>
+				<td>
+					<button type="button" class="button button-small remove-line-item-metadata">
+						Remove
+					</button>
+				</td>
+			</tr>
+		`;
+	}
+
+	/**
 	 * Initialize form validation
 	 */
 	function initFormValidation() {
@@ -157,7 +222,7 @@
 		var previewBtn = $('#wexport-preview-btn');
 		var exportBtn = $('#wexport-export-btn');
 
-		previewBtn.on('click', function(e) {
+		previewBtn.on('click', function (e) {
 			e.preventDefault();
 			if (!validateForm()) {
 				return false;
@@ -165,7 +230,7 @@
 			handleAjaxAction('preview');
 		});
 
-		exportBtn.on('click', function(e) {
+		exportBtn.on('click', function (e) {
 			e.preventDefault();
 			if (!validateForm()) {
 				return false;
@@ -189,11 +254,11 @@
 		var customCodeRows = $('.custom-code-row');
 		if (customCodeRows.length > 0) {
 			var valid = true;
-			customCodeRows.each(function() {
+			customCodeRows.each(function () {
 				var columnName = $(this).find('.custom-code-name').val().trim();
 				var typeSelect = $(this).find('.custom-code-type');
 				var selectedType = typeSelect.val();
-				
+
 				// Get source value from the appropriate input (either text or select) based on type
 				var sourceInput;
 				var source = '';
@@ -240,34 +305,34 @@
 		// If no order statuses selected, select all available statuses
 		var statusSelect = $('#order_status');
 		var selectedStatuses = statusSelect.val();
-		if ( !selectedStatuses || selectedStatuses.length === 0 ) {
+		if (!selectedStatuses || selectedStatuses.length === 0) {
 			statusSelect.find('option').prop('selected', true);
 			statusSelect.trigger('change');
 		}
 
 		// Build form data properly handling array structures
-		var formDataObj = new FormData( form[0] );
-		formDataObj.append( 'action', 'wexport_' + action );
-		
+		var formDataObj = new FormData(form[0]);
+		formDataObj.append('action', 'wexport_' + action);
+
 		// Remove the improperly serialized custom_codes and rebuild them
 		// FormData doesn't handle name="custom_codes[][field]" correctly
-		formDataObj.delete( 'custom_codes' );
-		
+		formDataObj.delete('custom_codes');
+
 		// Rebuild custom codes in FormData
 		var customCodesRows = $('.custom-code-row');
 		console.log('Number of custom code rows:', customCodesRows.length);
-		
+
 		var customCodeIndex = 0;
-		customCodesRows.each(function(rowIndex) {
+		customCodesRows.each(function (rowIndex) {
 			var row = $(this);
 			var columnName = row.find('.custom-code-name').val();
 			var type = row.find('.custom-code-type').val();
 			var source = '';
-			
+
 			// Trim and clean values
 			columnName = columnName ? columnName.trim() : '';
 			type = type ? type.trim() : '';
-			
+
 			// Get source based on type - only from the visible input
 			if ('taxonomy' === type) {
 				// For taxonomy type, get value from the select dropdown
@@ -282,25 +347,54 @@
 				source = source ? source.trim() : '';
 				console.log('Row ' + rowIndex + ' - Meta mode. Text input value:', source);
 			}
-			
+
 			console.log('Row ' + rowIndex + ' values:', { columnName: columnName, type: type, source: source });
-			
+
 			// Only add to FormData if all fields have values
-			if ( columnName && type && source ) {
-				formDataObj.append( 'custom_codes[' + customCodeIndex + '][column_name]', columnName );
-				formDataObj.append( 'custom_codes[' + customCodeIndex + '][type]', type );
-				formDataObj.append( 'custom_codes[' + customCodeIndex + '][source]', source );
+			if (columnName && type && source) {
+				formDataObj.append('custom_codes[' + customCodeIndex + '][column_name]', columnName);
+				formDataObj.append('custom_codes[' + customCodeIndex + '][type]', type);
+				formDataObj.append('custom_codes[' + customCodeIndex + '][source]', source);
 				console.log('Row ' + rowIndex + ' added as index ' + customCodeIndex);
 				customCodeIndex++;
 			} else {
 				console.log('Row ' + rowIndex + ' skipped - incomplete mapping. Column:', columnName, 'Type:', type, 'Source:', source);
 			}
 		});
-		
+
+		// Remove the improperly serialized line_item_metadata and rebuild them
+		// FormData doesn't handle name="line_item_metadata[][field]" correctly
+		formDataObj.delete('line_item_metadata');
+
+		// Rebuild line item metadata in FormData
+		var lineItemMetadataRows = $('.line-item-metadata-row');
+		console.log('Number of line item metadata rows:', lineItemMetadataRows.length);
+
+		var lineItemMetadataIndex = 0;
+		lineItemMetadataRows.each(function (rowIndex) {
+			var row = $(this);
+			var metaKey = row.find('.line-item-metadata-meta-key').val().trim();
+			var jsonQuery = row.find('.line-item-metadata-json-query').val().trim();
+			var columnName = row.find('.line-item-metadata-column-name').val().trim();
+
+			console.log('Row ' + rowIndex + ' values:', { columnName: columnName, metaKey: metaKey, jsonQuery: jsonQuery });
+
+			// Only add to FormData if both name and source are filled
+			if (columnName && metaKey) {
+				formDataObj.append('line_item_metadata[' + lineItemMetadataIndex + '][meta_key]', metaKey);
+				formDataObj.append('line_item_metadata[' + lineItemMetadataIndex + '][json_query]', jsonQuery);
+				formDataObj.append('line_item_metadata[' + lineItemMetadataIndex + '][column_name]', columnName);
+				console.log('Row ' + rowIndex + ' added as index ' + lineItemMetadataIndex);
+				lineItemMetadataIndex++;
+			} else {
+				console.log('Row ' + rowIndex + ' skipped - incomplete mapping. Column:', columnName, 'Source:', metaKey);
+			}
+		});
+
 		// Debug: Log what we're sending
 		console.log('FormData contents:');
-		for ( var pair of formDataObj.entries() ) {
-			console.log( pair[0] + ' = ' + pair[1] );
+		for (var pair of formDataObj.entries()) {
+			console.log(pair[0] + ' = ' + pair[1]);
 		}
 
 		// Make AJAX request
@@ -310,7 +404,7 @@
 			data: formDataObj,
 			contentType: false,
 			processData: false,
-			success: function(response) {
+			success: function (response) {
 				if (response.success) {
 					if ('preview' === action) {
 						showPreviewModal(response.data.preview);
@@ -323,11 +417,11 @@
 					showNotice(response.data.message || 'An error occurred.', 'error');
 				}
 			},
-			error: function(xhr, status, error) {
+			error: function (xhr, status, error) {
 				console.error('AJAX Error:', xhr, status, error);
 				showNotice('Request failed: ' + error, 'error');
 			},
-			complete: function() {
+			complete: function () {
 				previewBtn.prop('disabled', false);
 				exportBtn.prop('disabled', false);
 				loading.hide();
@@ -356,21 +450,21 @@
 		var rows = csvData.trim().split('\n');
 		var table = '<table class="wexport-preview-table"><tbody>';
 
-		rows.forEach(function(row, index) {
+		rows.forEach(function (row, index) {
 			var cells = parseCSVRow(row);
 			table += '<tr>';
-			
+
 			// First row is header
 			if (index === 0) {
-				cells.forEach(function(cell) {
+				cells.forEach(function (cell) {
 					table += '<th>' + escapeHtml(cell) + '</th>';
 				});
 			} else {
-				cells.forEach(function(cell) {
+				cells.forEach(function (cell) {
 					table += '<td>' + escapeHtml(cell) + '</td>';
 				});
 			}
-			
+
 			table += '</tr>';
 		});
 
@@ -422,16 +516,16 @@
 		var closeBtn = $('#wexport-preview-close');
 		var overlay = $('.wexport-preview-overlay');
 
-		closeBtn.on('click', function() {
+		closeBtn.on('click', function () {
 			modal.hide();
 		});
 
-		overlay.on('click', function() {
+		overlay.on('click', function () {
 			modal.hide();
 		});
 
 		// Close on Escape key
-		$(document).on('keydown', function(e) {
+		$(document).on('keydown', function (e) {
 			if (27 === e.keyCode && modal.is(':visible')) {
 				modal.hide();
 			}
@@ -447,8 +541,8 @@
 		$('.wrap').prepend(notice);
 
 		// Auto-dismiss after 5 seconds
-		setTimeout(function() {
-			$('.notice').fadeOut(function() {
+		setTimeout(function () {
+			$('.notice').fadeOut(function () {
 				$(this).remove();
 			});
 		}, 5000);
@@ -467,11 +561,11 @@
 		$('body').append(modal);
 
 		// Close on click outside
-		modal.on('click', function() {
+		modal.on('click', function () {
 			modal.remove();
 		});
 
-		content.on('click', function(e) {
+		content.on('click', function (e) {
 			e.stopPropagation();
 		});
 	}
@@ -486,28 +580,28 @@
 		var columnCheckboxes = $('.wexport-column-checkbox');
 
 		// Select All button
-		selectAllBtn.on('click', function(e) {
+		selectAllBtn.on('click', function (e) {
 			e.preventDefault();
 			columnCheckboxes.prop('checked', true);
 			groupSelectAllCheckboxes.prop('checked', true);
 		});
 
 		// Deselect All button
-		deselectAllBtn.on('click', function(e) {
+		deselectAllBtn.on('click', function (e) {
 			e.preventDefault();
 			columnCheckboxes.prop('checked', false);
 			groupSelectAllCheckboxes.prop('checked', false);
 		});
 
 		// Group select/deselect
-		groupSelectAllCheckboxes.on('change', function() {
+		groupSelectAllCheckboxes.on('change', function () {
 			var groupName = $(this).data('group');
 			var isChecked = $(this).is(':checked');
 			columnCheckboxes.filter('[data-group="' + groupName + '"]').prop('checked', isChecked);
 		});
 
 		// Update group checkbox when individual items change
-		columnCheckboxes.on('change', function() {
+		columnCheckboxes.on('change', function () {
 			var groupName = $(this).data('group');
 			var groupCheckbox = $('.wexport-group-select-all[data-group="' + groupName + '"]');
 			var groupItems = columnCheckboxes.filter('[data-group="' + groupName + '"]');
@@ -517,7 +611,7 @@
 		});
 
 		// Initialize group checkboxes on page load
-		groupSelectAllCheckboxes.each(function() {
+		groupSelectAllCheckboxes.each(function () {
 			var groupName = $(this).data('group');
 			var groupItems = columnCheckboxes.filter('[data-group="' + groupName + '"]');
 			var checkedCount = groupItems.filter(':checked').length;
@@ -551,7 +645,7 @@
 			'"': '&quot;',
 			"'": '&#039;'
 		};
-		return text.replace(/[&<>"']/g, function(m) {
+		return text.replace(/[&<>"']/g, function (m) {
 			return map[m];
 		});
 	}
