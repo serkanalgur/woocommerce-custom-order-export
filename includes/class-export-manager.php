@@ -215,7 +215,7 @@ class Export_Manager {
 		// Fetch and process orders.
 		$rows_exported = $this->process_orders();
 
-		// Map rows with final header list (including dynamic metadata headers).
+		// Get final header list (including dynamic metadata headers).
 		$final_headers = array_merge(
 			$this->get_order_columns(),
 			$this->get_item_columns(),
@@ -223,19 +223,9 @@ class Export_Manager {
 			$this->metadata_headers
 		);
 
-		// Rebuild rows with final headers.
-		$final_rows = array();
-		foreach ( $this->rows_buffer as $row ) {
-			$final_row = array();
-			foreach ( $final_headers as $header ) {
-				$final_row[] = $row[ $header ] ?? '';
-			}
-			$final_rows[] = $final_row;
-		}
-
-		// Write XLSX file.
+		// Write XLSX file with buffered rows (rows_buffer contains associative arrays with header keys).
 		if ( $rows_exported > 0 ) {
-			if ( ! Xlsx_Exporter::export( $file_path, $final_headers, $final_rows ) ) {
+			if ( ! Xlsx_Exporter::export( $file_path, $final_headers, $this->rows_buffer ) ) {
 				throw new \Exception( esc_html__( 'Could not write XLSX file.', 'wexport' ) );
 			}
 		} elseif ( ! Xlsx_Exporter::export( $file_path, $final_headers, array() ) ) {
