@@ -524,6 +524,11 @@ Special thanks to:
 
 ## Changelog
 
+### 1.8.2 (2026-03-08)
+- **Fixed**: XLSX exports now properly populate all row data (previously returned empty rows)
+- **Fixed**: Removed unnecessary row data type conversion that broke column-to-value mapping
+- **Improved**: XLSX row data structure maintains associative array format for proper exporter compatibility
+
 ### 1.8.1 (2026-03-08)
 - **Fixed**: Preview/export mismatch where preview displayed data but export returned empty file
 - **Fixed**: Date filter inconsistency between preview and export functions  

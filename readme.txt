@@ -8,7 +8,7 @@ Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 6.9
 Requires Plugins: woocommerce
-Stable tag: 1.8.1
+Stable tag: 1.8.2
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -110,6 +110,11 @@ Map custom product information to your export:
 - order_date
 
 == Changelog ==
+
+= 1.8.2 =
+* Fixed: XLSX exports now properly populate all row data (previously returned empty rows)
+* Fixed: Removed unnecessary row data type conversion that broke column-to-value mapping
+* Improved: XLSX row data structure maintains associative array format for proper exporter compatibility
 
 = 1.8.1 =
 * Fixed: Preview/export mismatch where preview displayed data but export returned empty file

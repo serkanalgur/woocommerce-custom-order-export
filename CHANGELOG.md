@@ -2,6 +2,12 @@
 
 All notable changes to the WooCommerce Order Export Pro plugin will be documented in this file.
 
+## [1.8.2] - 2026-03-08
+
+### Fixed
+- **XLSX Export Empty Rows**: Fixed issue where XLSX exports were returning files with empty rows. Root cause was unnecessary conversion of associative arrays to indexed arrays, breaking the column-to-value mapping in Xlsx_Exporter.
+- **XLSX Row Data Structure**: Ensured rows maintain associative array structure with proper column-name keys when passed to Xlsx_Exporter.
+
 ## [1.8.1] - 2026-03-08
 
 ### Fixed
