@@ -530,9 +530,17 @@ Typical performance on standard hosting:
 
 For issues or feature requests, please contact support or submit via the plugin support channel.
 
-## License
+## Contributors
 
-GPL v2 or later - See LICENSE file
+This plugin is developed with contributions from the community:
+
+<a href="https://github.com/serkanalgur/woocommerce-custom-order-export/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=serkanalgur/woocommerce-custom-order-export" />
+</a>
+
+Special thanks to:
+- **[@BrianHenryIE](https://github.com/BrianHenryIE)** - Line Item Metadata Mapping feature
+
 
 ## Changelog
 
@@ -804,17 +812,6 @@ GPL v2 or later - See LICENSE file
 - Export logging to track operations
 - Full WordPress and WooCommerce integration
 - Security features: nonce verification, capability checks, input sanitization
-
-## Contributors
-
-This plugin is developed with contributions from the community:
-
-<a href="https://github.com/serkanalgur/woocommerce-custom-order-export/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=serkanalgur/woocommerce-custom-order-export" />
-</a>
-
-Special thanks to:
-- **[@BrianHenryIE](https://github.com/BrianHenryIE)** - Line Item Metadata Mapping feature
 
 ## License
 
